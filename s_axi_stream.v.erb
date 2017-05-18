@@ -1,0 +1,101 @@
+% load "parameters.rb"
+
+`timescale 1 ns / 1 ps
+
+module s_axi_stream(/*AUTOARG*/);
+`include "parameters.vh"
+
+  parameter DWIDTH = 32;
+  parameter NUM_IN = <%=$fifo%>;
+  parameter AWIDTH = <%=Math.log2($fifo).to_i%>;
+
+  localparam  S_IDLE  = 'd0,
+              S_WRITE = 'd1;
+
+  /*AUTOINPUT*/
+  input                 clk;
+  input                 xrst;
+  input                 tvalid;
+  input [DWIDTH-1:0]    tdata;
+  input [DWIDTH/8-1:0]  tstrb;
+  input                 tlast;
+  input [DWIDTH-1:0]    fifo_addr;
+
+  /*AUTOOUTPUT*/
+  output tready;
+  output [DWIDTH-1:0]   fifo_rdata;
+
+  /*AUTOWIRE*/
+
+  /*AUTOREG*/
+  reg r_state;
+  reg r_tready;
+  reg r_write_end;
+  reg [DWIDTH-1:0] fifo [0:NUM_IN-1];
+
+//==========================================================
+// core control
+//==========================================================
+
+  always @(posedge clk)
+    if (!xrst)
+      r_state <= S_IDLE;
+    else
+      case (r_state)
+        S_IDLE:
+          if (tvalid)
+            r_state <= S_WRITE;
+
+        S_WRITE:
+          if (s_write_end)
+            r_state <= S_IDLE;
+      endcase
+
+//==========================================================
+// stream control
+//==========================================================
+
+  assign tready = r_tready;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_tready <= 0;
+    else
+      r_tready <= r_state == S_WRITE && r_write_ptr <= NUM_IN - 1;
+
+//==========================================================
+// fifo control
+//==========================================================
+
+  assign s_write_end = r_write_end;
+
+  assign fifo_we = tvalid && r_tready;
+  assign fifo_rdata = fifo[fifo_addr];
+
+  // NOTE: We kill the wstrb
+  always @(posedge clk)
+    if (fifo_we)
+      fifo[r_write_ptr] <= tdata;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_write_ptr <= 0;
+    else
+      if (r_write_ptr <= NUM_IN - 1)
+        if (fifo_we)
+          r_write_ptr <= r_write_ptr + 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_write_end <= 0;
+    else
+      if (r_write_ptr <= NUM_IN - 1) begin
+        if (fifo_we)
+          r_write_end <= 0;
+
+        if (r_write_ptr == NUM_IN - 1 || tlast)
+          r_write_end <= 1;
+      end
+
+endmodule
+
