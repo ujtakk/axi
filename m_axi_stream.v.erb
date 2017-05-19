@@ -5,6 +5,8 @@
 module m_axi_stream(/*AUTOARG*/);
 `include "parameters.vh"
 
+  parameter WORDS = 2 ** BUFSIZE;
+
   parameter MAX_COUNT = 32;
 
   localparam  S_IDLE  = 'd0,
@@ -75,13 +77,13 @@ module m_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_tvalid <= 0;
     else
-      r_tvalid <= r_state == S_SEND && r_read_ptr < QUESIZE;
+      r_tvalid <= r_state == S_SEND && r_read_ptr < WORDS;
 
   always @(posedge clk)
     if (!xrst)
       r_tlast <= 0;
     else
-      r_tlast <= r_read_ptr == QUESIZE - 1;
+      r_tlast <= r_read_ptr == WORDS - 1;
 
 //==========================================================
 // fifo control
@@ -101,7 +103,7 @@ module m_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_read_ptr <= 0;
     else
-      if (r_read_ptr <= QUESIZE - 1)
+      if (r_read_ptr <= WORDS - 1)
         if (fifo_re)
           r_read_ptr <= r_read_ptr + 1;
 
@@ -109,11 +111,11 @@ module m_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_send_end <= 0;
     else
-      if (r_read_ptr <= QUESIZE - 1) begin
+      if (r_read_ptr <= WORDS - 1) begin
         if (fifo_re)
           r_send_end <= 0;
       end
-      else if (r_read_ptr == QUESIZE)
+      else if (r_read_ptr == WORDS)
         r_send_end <= 1;
 
 endmodule

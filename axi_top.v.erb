@@ -1,5 +1,22 @@
 % load "parameters.rb"
 
+`timescale 1 ns / 1 ps
+
+// Template to ignore unnecessary output ports.
+// enumerate in quoted list of verilog-regexp-words.
+/* AUTO_LISP(setq verilog-auto-output-ignore-regexp
+    (verilog-regexp-words `(
+      <%- $port.times do |i| -%>
+      "port<%=i%>"
+      <%- end -%>
+      "mem_we"
+      "mem_addr"
+      "mem_wdata"
+      "mem_rdata"
+      "buf_en"
+      "buf_data"
+   ))) */
+
 module axi_top(/*AUTOARG*/);
 `include "parameters.vh"
 
@@ -18,7 +35,6 @@ module axi_top(/*AUTOARG*/);
   input                 s_axi_lite_arvalid;
   input                 s_axi_lite_rready;
 
-  input               m_axi_lite_init_axi_txn;
   input               m_axi_lite_aclk;
   input               m_axi_lite_aresetn;
   input               m_axi_lite_awready;
@@ -64,7 +80,6 @@ module axi_top(/*AUTOARG*/);
   input                     s_axi_arvalid;
   input                     s_axi_rready;
 
-  input                   m_axi_init_axi_txn;
   input                   m_axi_aclk;
   input                   m_axi_aresetn;
   input                   m_axi_awready;
@@ -102,8 +117,6 @@ module axi_top(/*AUTOARG*/);
   output [1:0]        s_axi_lite_rresp;
   output              s_axi_lite_rvalid;
 
-  output                m_axi_lite_error;
-  output                m_axi_lite_txn_done;
   output [REGSIZE-1:0]  m_axi_lite_awaddr;
   output [2:0]          m_axi_lite_awprot;
   output                m_axi_lite_awvalid;
@@ -130,8 +143,6 @@ module axi_top(/*AUTOARG*/);
   output [RUSER_WIDTH-1:0]  s_axi_ruser;
   output                    s_axi_rvalid;
 
-  output                    m_axi_txn_done;
-  output                    m_axi_error;
   output [ID_WIDTH-1:0]     m_axi_awid;
   output [MEMSIZE-1:0]      m_axi_awaddr;
   output [7:0]              m_axi_awlen;
@@ -170,6 +181,15 @@ module axi_top(/*AUTOARG*/);
   output                m_axi_stream_tlast;
 
   /*AUTOWIRE*/
+  <%- $port.times do |i| -%>
+  wire [DWIDTH-1:0]   port<%=i%>;
+  <%- end -%>
+  wire                mem_we;
+  wire [MEMSIZE-1:0]  mem_addr;
+  wire [DWIDTH-1:0]   mem_wdata;
+  wire [DWIDTH-1:0]   mem_rdata;
+  wire                buf_en;
+  wire [DWIDTH-1:0]   buf_data;
 
   /*AUTOREG*/
 
@@ -199,9 +219,9 @@ module axi_top(/*AUTOARG*/);
   s_axi_lite s_axi_lite_inst(/*AUTOINST*/);
 
   /* m_axi_lite AUTO_TEMPLATE (
-      .req      (),
-      .ack      (),
-      .err      (),
+      .req      (port0),
+      .ack      (port31),
+      .err      (port30),
       .clk      (m_axi_lite_aclk),
       .xrst     (m_axi_lite_aresetn),
       .awaddr   (m_axi_lite_awaddr),
@@ -277,9 +297,9 @@ module axi_top(/*AUTOARG*/);
   s_axi s_axi_inst(/*AUTOINST*/);
 
   /* m_axi AUTO_TEMPLATE (
-      .req      (),
-      .ack      (),
-      .err      (),
+      .req      (port1),
+      .ack      (port29),
+      .err      (port28),
       .clk      (m_axi_aclk),
       .xrst     (m_axi_aresetn),
       .awid     (m_axi_awid),

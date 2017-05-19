@@ -5,7 +5,7 @@
 module s_axi_stream(/*AUTOARG*/);
 `include "parameters.vh"
 
-  localparam QWIDTH = <%=Math.log2($quesize).to_i%>;
+  parameter WORDS = 2 ** BUFSIZE;
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1;
@@ -17,11 +17,11 @@ module s_axi_stream(/*AUTOARG*/);
   input [DWIDTH-1:0]    tdata;
   input [DWIDTH/8-1:0]  tstrb;
   input                 tlast;
-  input [DWIDTH-1:0]    fifo_addr;
+  input                 buf_en;
 
   /*AUTOOUTPUT*/
   output tready;
-  output [DWIDTH-1:0]   fifo_rdata;
+  output [DWIDTH-1:0]   buf_data;
 
   /*AUTOWIRE*/
   wire s_write_end;
@@ -31,8 +31,9 @@ module s_axi_stream(/*AUTOARG*/);
   reg r_state;
   reg r_tready;
   reg r_write_end;
-  reg [DWIDTH-1:0] fifo [0:QUESIZE-1];
-  reg [QWIDTH-1:0] r_write_ptr;
+  reg [DWIDTH-1:0] fifo [0:WORDS-1];
+  reg [BUFSIZE-1:0] r_write_ptr;
+  reg [BUFSIZE-1:0] r_read_ptr;
 
 //==========================================================
 // core control
@@ -62,7 +63,7 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_tready <= 0;
     else
-      r_tready <= r_state == S_WRITE && r_write_ptr <= QUESIZE - 1;
+      r_tready <= r_state == S_WRITE && r_write_ptr <= WORDS - 1;
 
 //==========================================================
 // fifo control
@@ -71,7 +72,7 @@ module s_axi_stream(/*AUTOARG*/);
   assign s_write_end = r_write_end;
 
   assign fifo_we = tvalid && r_tready;
-  assign fifo_rdata = fifo[fifo_addr];
+  assign buf_data = fifo[r_read_ptr];
 
   // NOTE: We kill the wstrb
   always @(posedge clk)
@@ -82,19 +83,27 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_write_ptr <= 0;
     else
-      if (r_write_ptr <= QUESIZE - 1)
+      if (r_write_ptr <= WORDS - 1)
         if (fifo_we)
           r_write_ptr <= r_write_ptr + 1;
 
   always @(posedge clk)
     if (!xrst)
+      r_read_ptr <= 0;
+    else
+      if (r_read_ptr <= WORDS - 1)
+        if (buf_en)
+          r_read_ptr <= r_read_ptr + 1;
+
+  always @(posedge clk)
+    if (!xrst)
       r_write_end <= 0;
     else
-      if (r_write_ptr <= QUESIZE - 1) begin
+      if (r_write_ptr <= WORDS - 1) begin
         if (fifo_we)
           r_write_end <= 0;
 
-        if (r_write_ptr == QUESIZE - 1 || tlast)
+        if (r_write_ptr == WORDS - 1 || tlast)
           r_write_end <= 1;
       end
 

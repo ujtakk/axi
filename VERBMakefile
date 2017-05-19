@@ -173,6 +173,8 @@ Makefile.dep:
 dep.in:
 	echo "$$DEP_IN" > dep.in
 
+.PHONY: clean-common dist
+
 clean-common:
 	rm -f *~ test/*~
 	rm -f *# test/*#
