@@ -11,26 +11,28 @@ module test_axi_top;
 
   /*AUTOWIRE*/
 
-  assign s_axi_lite_aclk    = clk;
-  assign m_axi_lite_aclk    = clk;
-  assign s_axi_aclk         = clk;
-  assign m_axi_aclk         = clk;
-  assign s_axi_stream_aclk  = clk;
-  assign m_axi_stream_aclk  = clk;
-
-  assign s_axi_lite_aresetn   = xrst;
-  assign m_axi_lite_aresetn   = xrst;
-  assign s_axi_aresetn        = xrst;
-  assign m_axi_aresetn        = xrst;
-  assign s_axi_stream_aresetn = xrst;
-  assign m_axi_stream_aresetn = xrst;
-
   //clock
   always begin
     clk = 0;
     #(STEP/2);
     clk = 1;
     #(STEP/2);
+  end
+
+  always begin
+    s_axi_lite_aclk    = clk;
+    m_axi_lite_aclk    = clk;
+    s_axi_aclk         = clk;
+    m_axi_aclk         = clk;
+    s_axi_stream_aclk  = clk;
+    m_axi_stream_aclk  = clk;
+
+    s_axi_lite_aresetn   = xrst;
+    m_axi_lite_aresetn   = xrst;
+    s_axi_aresetn        = xrst;
+    m_axi_aresetn        = xrst;
+    s_axi_stream_aresetn = xrst;
+    m_axi_stream_aresetn = xrst;
   end
 
   //flow
