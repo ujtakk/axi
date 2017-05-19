@@ -1,8 +1,13 @@
 Makefile.dep
 dep.in
-
 dist
+transcript
+vivado
+work
 
 *.v
+*.vh
 *.v.in
 *.v.log
+*.com
+*.log
