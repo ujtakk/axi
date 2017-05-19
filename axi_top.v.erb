@@ -88,9 +88,9 @@ module axi_top(/*AUTOARG*/);
   input                 s_axi_stream_tlast;
   input                 s_axi_stream_tvalid;
 
-  input m00_axis_aclk;
-  input m00_axis_aresetn;
-  input m00_axis_tready;
+  input m_axi_stream_aclk;
+  input m_axi_stream_aresetn;
+  input m_axi_stream_tready;
 
   /*AUTOOUTPUT*/
   output              s_axi_lite_awready;
@@ -339,13 +339,13 @@ module axi_top(/*AUTOARG*/);
   s_axi_stream s_axi_stream_inst(/*AUTOINST*/);
 
   /* m_axi_stream AUTO_TEMPLATE (
-    .clk    (m00_axis_aclk),
-    .xrst   (m00_axis_aresetn),
-    .tvalid (m00_axis_tvalid),
-    .tdata  (m00_axis_tdata),
-    .tstrb  (m00_axis_tstrb),
-    .tlast  (m00_axis_tlast),
-    .tready (m00_axis_tready),
+    .clk    (m_axi_stream_aclk),
+    .xrst   (m_axi_stream_aresetn),
+    .tvalid (m_axi_stream_tvalid),
+    .tdata  (m_axi_stream_tdata),
+    .tstrb  (m_axi_stream_tstrb),
+    .tlast  (m_axi_stream_tlast),
+    .tready (m_axi_stream_tready),
   ); */
   m_axi_stream m_axi_stream_inst(/*AUTOINST*/);
 

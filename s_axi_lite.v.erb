@@ -5,11 +5,9 @@
 module s_axi_lite(/*AUTOARG*/);
 `include "parameters.vh"
 
-  parameter DWIDTH = 32;
   parameter AWIDTH = <%=Math.log2($regsize).to_i%> + DWIDTH/32 + 1;
 
   localparam LSB = DWIDTH/32 + 1;
-  localparam REGSIZE = <%=Math.log2($regsize).to_i%>;
 
   /*AUTOINPUT*/
   input                 clk;
@@ -17,7 +15,6 @@ module s_axi_lite(/*AUTOARG*/);
   input [AWIDTH-1:0]    awaddr;
   input [2:0]           awprot;
   input                 awvalid;
-  input                 awready;
   input [DWIDTH-1:0]    wdata;
   input [DWIDTH/8-1:0]  wstrb;
   input                 wvalid;
@@ -26,19 +23,19 @@ module s_axi_lite(/*AUTOARG*/);
   input [AWIDTH-1:0]    araddr;
   input [1:0]           arprot;
   input                 rready;
-  <%- $regsize.downto($regsize/2) do |i| -%>
+  <%- ($regsize-1).downto($regsize/2) do |i| -%>
   input [DWIDTH-1:0]    port<%=i%>;
   <%- end -%>
 
   /*AUTOOUTPUT*/
-    output              awready;
-    output              wready;
-    output              bvalid;
-    output [1:0]        bresp;
-    output              arready;
-    output              rvalid;
-    output [DWIDTH-1:0] rdata;
-    output [1:0]        rresp;
+  output              awready;
+  output              wready;
+  output              bvalid;
+  output [1:0]        bresp;
+  output              arready;
+  output              rvalid;
+  output [DWIDTH-1:0] rdata;
+  output [1:0]        rresp;
   <%- 0.upto($regsize/2-1) do |i| -%>
   output [DWIDTH-1:0] port<%=i%>;
   <%- end -%>
@@ -51,9 +48,10 @@ module s_axi_lite(/*AUTOARG*/);
   reg               r_awready;
   reg [AWIDTH-1:0]  r_awaddr;
   reg               r_wready;
-  reg               r_bvalid
+  reg               r_bvalid;
   reg [1:0]         r_bresp;
   reg               r_arready;
+  reg [AWIDTH-1:0]  r_araddr;
   reg               r_rvalid;
   reg [DWIDTH-1:0]  r_rdata;
   reg [1:0]         r_rresp;
@@ -216,7 +214,7 @@ module s_axi_lite(/*AUTOARG*/);
         endcase
       else begin
         // PL->PS ports
-        <%- $regsize.downto($regsize/2) do |i| -%>
+        <%- ($regsize-1).downto($regsize/2) do |i| -%>
         r_port<%=i%> <= port<%=i%>;
         <%- end -%>
       end

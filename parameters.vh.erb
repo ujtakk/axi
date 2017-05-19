@@ -1,4 +1,16 @@
 % load "parameters.rb"
 
-parameter DWIDTH = <%=$dwidth%>;
-parameter AWIDTH = <%=$awidth%>;
+parameter STEP    = <%=$step%>;
+parameter DWIDTH  = <%=$dwidth%>;
+
+parameter REGSIZE = <%=Math.log2($regsize).to_i%>;
+parameter MEMSIZE = <%=Math.log2($memsize).to_i%>;
+parameter QUESIZE = <%=$quesize%>;
+
+parameter ID_WIDTH = 1;
+
+parameter AWUSER_WIDTH = 0;
+parameter ARUSER_WIDTH = 0;
+parameter WUSER_WIDTH  = 0;
+parameter RUSER_WIDTH  = 0;
+parameter BUSER_WIDTH  = 0;

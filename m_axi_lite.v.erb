@@ -5,8 +5,6 @@
 module m_axi_lite(/*AUTOARG*/);
 `include "parameters.vh"
 
-  parameter DWIDTH  = 32;
-  parameter AWIDTH  = 32;
   parameter TXN_NUM = 4;
 
   localparam  S_IDLE  = 'd0,
@@ -33,14 +31,14 @@ module m_axi_lite(/*AUTOARG*/);
   output                err;
 
   output                awvalid;
-  output [AWIDTH-1:0]   awaddr;
+  output [REGSIZE-1:0]  awaddr;
   output [2:0]          awprot;
   output                wvalid;
   output [DWIDTH-1:0]   wdata;
   output [DWIDTH/8-1:0] wstrb;
   output                bready;
   output                arvalid;
-  output [AWIDTH-1:0]   araddr;
+  output [REGSIZE-1:0]   araddr;
   output [2:0]          arprot;
   output                rready;
 

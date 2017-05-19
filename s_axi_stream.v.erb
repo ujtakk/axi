@@ -5,9 +5,7 @@
 module s_axi_stream(/*AUTOARG*/);
 `include "parameters.vh"
 
-  parameter DWIDTH = 32;
-  parameter NUM_IN = <%=$quesize%>;
-  parameter AWIDTH = <%=Math.log2($quesize).to_i%>;
+  localparam QWIDTH = <%=Math.log2($quesize).to_i%>;
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1;
@@ -26,12 +24,15 @@ module s_axi_stream(/*AUTOARG*/);
   output [DWIDTH-1:0]   fifo_rdata;
 
   /*AUTOWIRE*/
+  wire s_write_end;
+  wire fifo_we;
 
   /*AUTOREG*/
   reg r_state;
   reg r_tready;
   reg r_write_end;
-  reg [DWIDTH-1:0] fifo [0:NUM_IN-1];
+  reg [DWIDTH-1:0] fifo [0:QUESIZE-1];
+  reg [QWIDTH-1:0] r_write_ptr;
 
 //==========================================================
 // core control
@@ -61,7 +62,7 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_tready <= 0;
     else
-      r_tready <= r_state == S_WRITE && r_write_ptr <= NUM_IN - 1;
+      r_tready <= r_state == S_WRITE && r_write_ptr <= QUESIZE - 1;
 
 //==========================================================
 // fifo control
@@ -81,7 +82,7 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_write_ptr <= 0;
     else
-      if (r_write_ptr <= NUM_IN - 1)
+      if (r_write_ptr <= QUESIZE - 1)
         if (fifo_we)
           r_write_ptr <= r_write_ptr + 1;
 
@@ -89,11 +90,11 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_write_end <= 0;
     else
-      if (r_write_ptr <= NUM_IN - 1) begin
+      if (r_write_ptr <= QUESIZE - 1) begin
         if (fifo_we)
           r_write_end <= 0;
 
-        if (r_write_ptr == NUM_IN - 1 || tlast)
+        if (r_write_ptr == QUESIZE - 1 || tlast)
           r_write_end <= 1;
       end
 

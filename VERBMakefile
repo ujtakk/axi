@@ -106,7 +106,7 @@ endif
 .v.erb.v.in:
 	$(E) echo "  ERUBY (.v.erb)    $<"
 ifeq ($(VERBOSE),1)
-	$(Q) $(ERUBY) 2>&1 | tee $@
+	$(Q) $(ERUBY) > $@
 else
 	$(Q) $(ERUBY) > $@ 2>&1
 endif
@@ -175,6 +175,7 @@ dep.in:
 
 clean-common:
 	rm -f *~ test/*~
+	rm -f *# test/*#
 	rm -f *.com test/*.com
 	rm -f *.log test/*.log
 	rm -f Makefile.dep
