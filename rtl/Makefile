@@ -1,11 +1,11 @@
 VERBOSE   = 0
 SIMULATOR = vsim
 MODULE    = axi_top.v.erb
-TARGET    = test/test_$(MODULE)
+TARGET    = ../test/test_$(MODULE)
 INCLUDE   =
 
 LINK_DIR  = .
-DIST      = dist
+DIST      = ../dist
 
 include Makefile.dep
 include VERBMakefile
