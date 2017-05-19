@@ -5,7 +5,7 @@ TARGET    = test/test_$(MODULE)
 INCLUDE   =
 
 LINK_DIR  = .
-DIST      = ../dist
+DIST      = dist
 
 include Makefile.dep
 include VERBMakefile
