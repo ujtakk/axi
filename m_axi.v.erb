@@ -5,6 +5,10 @@
 module m_axi(/*AUTOARG*/);
 `include "parameters.vh"
 
+  parameter BURST_LEN     = 16;
+  parameter TXN_NUM       = clogb2(BURST_LEN-1);
+  parameter NO_BURSTS_REQ = 12 - clogb2(BURST_LEN*DWIDTH/8-1);
+
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1,
               S_READ  = 'd2,
@@ -70,7 +74,7 @@ module m_axi(/*AUTOARG*/);
   wire err_diff;
   wire wnext;
   wire rnext;
-  wire [NUM_TXN+2-1:0] burst_size;
+  wire [TXN_NUM+2-1:0] burst_size;
 
   /*AUTOREG*/
   reg [1:0]               r_state;
@@ -105,21 +109,23 @@ module m_axi(/*AUTOARG*/);
   reg [ARUSER_WIDTH-1:0]  r_aruser;
   reg                     r_arvalid;
   reg                     r_rready;
-
-  function integer clogb2 (input integer bit_depth);
-    begin
-      for(clogb2=0; bit_depth>0; clogb2=clogb2+1)
-        bit_depth = bit_depth >> 1;
-    end
-  endfunction
+  reg [NO_BURSTS_REQ:0]   r_write_burst_cnt;
+  reg [NO_BURSTS_REQ:0]   r_read_burst_cnt;
+  reg [TXN_NUM:0]         r_write_idx;
+  reg [TXN_NUM:0]         r_read_idx;
+  reg                     r_write_single_burst;
+  reg                     r_read_single_burst;
+  reg                     r_write_active;
+  reg                     r_read_active;
+  reg [DWIDTH-1:0]        r_exp_rdata;
 
 //==========================================================
 // core control
 //==========================================================
 
-  assign s_write_end = bvalid && r_bready && r_write_burst_cnt[NO_BURST_REQ];
+  assign s_write_end = bvalid && r_bready && r_write_burst_cnt[NO_BURSTS_REQ];
   assign s_read_end  = rvalid && r_rready && r_read_idx == BURST_LEN - 1
-                    && r_read_burst_cnt[NO_BURST_REQ];
+                    && r_read_burst_cnt[NO_BURSTS_REQ];
   assign s_comp_end  = r_state == S_COMP;
 
   assign burst_size = BURST_LEN * DWIDTH/8;
