@@ -6,8 +6,8 @@ module s_axi_stream(/*AUTOARG*/);
 `include "parameters.vh"
 
   parameter DWIDTH = 32;
-  parameter NUM_IN = <%=$fifo%>;
-  parameter AWIDTH = <%=Math.log2($fifo).to_i%>;
+  parameter NUM_IN = <%=$quesize%>;
+  parameter AWIDTH = <%=Math.log2($quesize).to_i%>;
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1;

@@ -6,7 +6,7 @@ module s_axi(/*AUTOARG*/);
 `include "parameters.vh"
 
   parameter DWIDTH = 32;
-  parameter AWIDTH = <%=Math.log2($mmap).to_i%> + DWIDTH/32 + 1;
+  parameter AWIDTH = <%=Math.log2($memsize).to_i%> + DWIDTH/32 + 1;
 
   parameter ID_WIDTH = 1;
 
@@ -17,7 +17,7 @@ module s_axi(/*AUTOARG*/);
   parameter BUSER_WIDTH  = 0;
 
   localparam LSB = DWIDTH/32 + 1;
-  localparam MEMSIZE = <%=Math.log2($mmap).to_i%>;
+  localparam MEMSIZE = <%=Math.log2($memsize).to_i%>;
   localparam NUM_MEM = 1;
 
   /*AUTOINPUT*/

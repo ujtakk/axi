@@ -1,6 +1,6 @@
 VERBOSE   = 0
 SIMULATOR = vsim
-MODULE    = m_axi_lite.v.erb
+MODULE    = axi_top.v.erb
 TARGET    = test/test_$(MODULE)
 INCLUDE   =
 

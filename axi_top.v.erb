@@ -1,0 +1,353 @@
+% load "parameters.rb"
+
+module axi_top(/*AUTOARG*/);
+`include "parameters.vh"
+
+  /*AUTOINPUT*/
+  input                 s_axi_lite_aclk;
+  input                 s_axi_lite_aresetn;
+  input [REGSIZE-1:0]   s_axi_lite_awaddr;
+  input [2:0]           s_axi_lite_awprot;
+  input                 s_axi_lite_awvalid;
+  input [DWIDTH-1:0]    s_axi_lite_wdata;
+  input [DWIDTH/8-1:0]  s_axi_lite_wstrb;
+  input                 s_axi_lite_wvalid;
+  input                 s_axi_lite_bready;
+  input [REGSIZE-1:0]   s_axi_lite_araddr;
+  input [2:0]           s_axi_lite_arprot;
+  input                 s_axi_lite_arvalid;
+  input                 s_axi_lite_rready;
+
+  input               m_axi_lite_init_axi_txn;
+  input               m_axi_lite_aclk;
+  input               m_axi_lite_aresetn;
+  input               m_axi_lite_awready;
+  input               m_axi_lite_wready;
+  input [1:0]         m_axi_lite_bresp;
+  input               m_axi_lite_bvalid;
+  input               m_axi_lite_arready;
+  input [DWIDTH-1:0]  m_axi_lite_rdata;
+  input [1:0]         m_axi_lite_rresp;
+  input               m_axi_lite_rvalid;
+
+  input                     s_axi_aclk;
+  input                     s_axi_aresetn;
+  input [ID_WIDTH-1:0]      s_axi_awid;
+  input [MEMSIZE-1:0]       s_axi_awaddr;
+  input [7:0]               s_axi_awlen;
+  input [2:0]               s_axi_awsize;
+  input [1:0]               s_axi_awburst;
+  input                     s_axi_awlock;
+  input [3:0]               s_axi_awcache;
+  input [2:0]               s_axi_awprot;
+  input [3:0]               s_axi_awqos;
+  input [3:0]               s_axi_awregion;
+  input [AWUSER_WIDTH-1:0]  s_axi_awuser;
+  input                     s_axi_awvalid;
+  input [DWIDTH-1:0]        s_axi_wdata;
+  input [DWIDTH/8-1:0]      s_axi_wstrb;
+  input                     s_axi_wlast;
+  input [WUSER_WIDTH-1:0]   s_axi_wuser;
+  input                     s_axi_wvalid;
+  input                     s_axi_bready;
+  input [ID_WIDTH-1:0]      s_axi_arid;
+  input [MEMSIZE-1:0]       s_axi_araddr;
+  input [7:0]               s_axi_arlen;
+  input [2:0]               s_axi_arsize;
+  input [1:0]               s_axi_arburst;
+  input                     s_axi_arlock;
+  input [3:0]               s_axi_arcache;
+  input [2:0]               s_axi_arprot;
+  input [3:0]               s_axi_arqos;
+  input [3:0]               s_axi_arregion;
+  input [ARUSER_WIDTH-1:0]  s_axi_aruser;
+  input                     s_axi_arvalid;
+  input                     s_axi_rready;
+
+  input                   m_axi_init_axi_txn;
+  input                   m_axi_aclk;
+  input                   m_axi_aresetn;
+  input                   m_axi_awready;
+  input                   m_axi_wready;
+  input [ID_WIDTH-1:0]    m_axi_bid;
+  input [1:0]             m_axi_bresp;
+  input [BUSER_WIDTH-1:0] m_axi_buser;
+  input                   m_axi_bvalid;
+  input                   m_axi_arready;
+  input [ID_WIDTH-1:0]    m_axi_rid;
+  input [DWIDTH-1:0]      m_axi_rdata;
+  input [1:0]             m_axi_rresp;
+  input                   m_axi_rlast;
+  input [RUSER_WIDTH-1:0] m_axi_ruser;
+  input                   m_axi_rvalid;
+
+  input                 s_axi_stream_aclk;
+  input                 s_axi_stream_aresetn;
+  input [DWIDTH-1:0]    s_axi_stream_tdata;
+  input [DWIDTH/8-1:0]  s_axi_stream_tstrb;
+  input                 s_axi_stream_tlast;
+  input                 s_axi_stream_tvalid;
+
+  input m00_axis_aclk;
+  input m00_axis_aresetn;
+  input m00_axis_tready;
+
+  /*AUTOOUTPUT*/
+  output              s_axi_lite_awready;
+  output              s_axi_lite_wready;
+  output [1:0]        s_axi_lite_bresp;
+  output              s_axi_lite_bvalid;
+  output              s_axi_lite_arready;
+  output [DWIDTH-1:0] s_axi_lite_rdata;
+  output [1:0]        s_axi_lite_rresp;
+  output              s_axi_lite_rvalid;
+
+  output                m_axi_lite_error;
+  output                m_axi_lite_txn_done;
+  output [REGSIZE-1:0]  m_axi_lite_awaddr;
+  output [2:0]          m_axi_lite_awprot;
+  output                m_axi_lite_awvalid;
+  output [DWIDTH-1:0]   m_axi_lite_wdata;
+  output [DWIDTH/8-1:0] m_axi_lite_wstrb;
+  output                m_axi_lite_wvalid;
+  output                m_axi_lite_bready;
+  output [REGSIZE-1:0]  m_axi_lite_araddr;
+  output [2:0]          m_axi_lite_arprot;
+  output                m_axi_lite_arvalid;
+  output                m_axi_lite_rready;
+
+  output                    s_axi_awready;
+  output                    s_axi_wready;
+  output [ID_WIDTH-1:0]     s_axi_bid;
+  output [1:0]              s_axi_bresp;
+  output [BUSER_WIDTH-1:0]  s_axi_buser;
+  output                    s_axi_bvalid;
+  output                    s_axi_arready;
+  output [ID_WIDTH-1:0]     s_axi_rid;
+  output [DWIDTH-1:0]       s_axi_rdata;
+  output [1:0]              s_axi_rresp;
+  output                    s_axi_rlast;
+  output [RUSER_WIDTH-1:0]  s_axi_ruser;
+  output                    s_axi_rvalid;
+
+  output                    m_axi_txn_done;
+  output                    m_axi_error;
+  output [ID_WIDTH-1:0]     m_axi_awid;
+  output [MEMSIZE-1:0]      m_axi_awaddr;
+  output [7:0]              m_axi_awlen;
+  output [2:0]              m_axi_awsize;
+  output [1:0]              m_axi_awburst;
+  output                    m_axi_awlock;
+  output [3:0]              m_axi_awcache;
+  output [2:0]              m_axi_awprot;
+  output [3:0]              m_axi_awqos;
+  output [AWUSER_WIDTH-1:0] m_axi_awuser;
+  output                    m_axi_awvalid;
+  output [DWIDTH-1:0]       m_axi_wdata;
+  output [DWIDTH/8-1:0]     m_axi_wstrb;
+  output                    m_axi_wlast;
+  output [WUSER_WIDTH-1:0]  m_axi_wuser;
+  output                    m_axi_wvalid;
+  output                    m_axi_bready;
+  output [ID_WIDTH-1:0]     m_axi_arid;
+  output [MEMSIZE-1:0]      m_axi_araddr;
+  output [7:0]              m_axi_arlen;
+  output [2:0]              m_axi_arsize;
+  output [1:0]              m_axi_arburst;
+  output                    m_axi_arlock;
+  output [3:0]              m_axi_arcache;
+  output [2:0]              m_axi_arprot;
+  output [3:0]              m_axi_arqos;
+  output [ARUSER_WIDTH-1:0] m_axi_aruser;
+  output                    m_axi_arvalid;
+  output                    m_axi_rready;
+
+  output s_axi_stream_tready;
+
+  output                m00_axis_tvalid;
+  output [DWIDTH-1:0]   m00_axis_tdata;
+  output [DWIDTH/8-1:0] m00_axis_tstrb;
+  output                m00_axis_tlast;
+
+  /*AUTOWIRE*/
+
+  /*AUTOREG*/
+
+  /* s_axi_lite AUTO_TEMPLATE (
+      .clk      (s_axi_lite_aclk),
+      .xrst     (s_axi_lite_aresetn),
+      .awaddr   (s_axi_lite_awaddr),
+      .awprot   (s_axi_lite_awprot),
+      .awvalid  (s_axi_lite_awvalid),
+      .awready  (s_axi_lite_awready),
+      .wdata    (s_axi_lite_wdata),
+      .wstrb    (s_axi_lite_wstrb),
+      .wvalid   (s_axi_lite_wvalid),
+      .wready   (s_axi_lite_wready),
+      .bresp    (s_axi_lite_bresp),
+      .bvalid   (s_axi_lite_bvalid),
+      .bready   (s_axi_lite_bready),
+      .araddr   (s_axi_lite_araddr),
+      .arprot   (s_axi_lite_arprot),
+      .arvalid  (s_axi_lite_arvalid),
+      .arready  (s_axi_lite_arready),
+      .rdata    (s_axi_lite_rdata),
+      .rresp    (s_axi_lite_rresp),
+      .rvalid   (s_axi_lite_rvalid),
+      .rready   (s_axi_lite_rready),
+  ); */
+  s_axi_lite s_axi_lite_inst(/*AUTOINST*/);
+
+  /* m_axi_lite AUTO_TEMPLATE (
+      .req      (),
+      .ack      (),
+      .err      (),
+      .clk      (m_axi_lite_aclk),
+      .xrst     (m_axi_lite_aresetn),
+      .awaddr   (m_axi_lite_awaddr),
+      .awprot   (m_axi_lite_awprot),
+      .awvalid  (m_axi_lite_awvalid),
+      .awready  (m_axi_lite_awready),
+      .wdata    (m_axi_lite_wdata),
+      .wstrb    (m_axi_lite_wstrb),
+      .wvalid   (m_axi_lite_wvalid),
+      .wready   (m_axi_lite_wready),
+      .bresp    (m_axi_lite_bresp),
+      .bvalid   (m_axi_lite_bvalid),
+      .bready   (m_axi_lite_bready),
+      .araddr   (m_axi_lite_araddr),
+      .arprot   (m_axi_lite_arprot),
+      .arvalid  (m_axi_lite_arvalid),
+      .arready  (m_axi_lite_arready),
+      .rdata    (m_axi_lite_rdata),
+      .rresp    (m_axi_lite_rresp),
+      .rvalid   (m_axi_lite_rvalid),
+      .rready   (m_axi_lite_rready),
+  ); */
+  m_axi_lite m_axi_lite_inst(/*AUTOINST*/);
+
+  /* s_axi AUTO_TEMPLATE (
+      .clk      (s_axi_aclk),
+      .xrst     (s_axi_aresetn),
+      .awid     (s_axi_awid),
+      .awaddr   (s_axi_awaddr),
+      .awlen    (s_axi_awlen),
+      .awsize   (s_axi_awsize),
+      .awburst  (s_axi_awburst),
+      .awlock   (s_axi_awlock),
+      .awcache  (s_axi_awcache),
+      .awprot   (s_axi_awprot),
+      .awqos    (s_axi_awqos),
+      .awregion (s_axi_awregion),
+      .awuser   (s_axi_awuser),
+      .awvalid  (s_axi_awvalid),
+      .awready  (s_axi_awready),
+      .wdata    (s_axi_wdata),
+      .wstrb    (s_axi_wstrb),
+      .wlast    (s_axi_wlast),
+      .wuser    (s_axi_wuser),
+      .wvalid   (s_axi_wvalid),
+      .wready   (s_axi_wready),
+      .bid      (s_axi_bid),
+      .bresp    (s_axi_bresp),
+      .buser    (s_axi_buser),
+      .bvalid   (s_axi_bvalid),
+      .bready   (s_axi_bready),
+      .arid     (s_axi_arid),
+      .araddr   (s_axi_araddr),
+      .arlen    (s_axi_arlen),
+      .arsize   (s_axi_arsize),
+      .arburst  (s_axi_arburst),
+      .arlock   (s_axi_arlock),
+      .arcache  (s_axi_arcache),
+      .arprot   (s_axi_arprot),
+      .arqos    (s_axi_arqos),
+      .arregion (s_axi_arregion),
+      .aruser   (s_axi_aruser),
+      .arvalid  (s_axi_arvalid),
+      .arready  (s_axi_arready),
+      .rid      (s_axi_rid),
+      .rdata    (s_axi_rdata),
+      .rresp    (s_axi_rresp),
+      .rlast    (s_axi_rlast),
+      .ruser    (s_axi_ruser),
+      .rvalid   (s_axi_rvalid),
+      .rready   (s_axi_rready),
+  ); */
+  s_axi s_axi_inst(/*AUTOINST*/);
+
+  /* m_axi AUTO_TEMPLATE (
+      .req      (),
+      .ack      (),
+      .err      (),
+      .clk      (m_axi_aclk),
+      .xrst     (m_axi_aresetn),
+      .awid     (m_axi_awid),
+      .awaddr   (m_axi_awaddr),
+      .awlen    (m_axi_awlen),
+      .awsize   (m_axi_awsize),
+      .awburst  (m_axi_awburst),
+      .awlock   (m_axi_awlock),
+      .awcache  (m_axi_awcache),
+      .awprot   (m_axi_awprot),
+      .awqos    (m_axi_awqos),
+      .awuser   (m_axi_awuser),
+      .awvalid  (m_axi_awvalid),
+      .awready  (m_axi_awready),
+      .wdata    (m_axi_wdata),
+      .wstrb    (m_axi_wstrb),
+      .wlast    (m_axi_wlast),
+      .wuser    (m_axi_wuser),
+      .wvalid   (m_axi_wvalid),
+      .wready   (m_axi_wready),
+      .bid      (m_axi_bid),
+      .bresp    (m_axi_bresp),
+      .buser    (m_axi_buser),
+      .bvalid   (m_axi_bvalid),
+      .bready   (m_axi_bready),
+      .arid     (m_axi_arid),
+      .araddr   (m_axi_araddr),
+      .arlen    (m_axi_arlen),
+      .arsize   (m_axi_arsize),
+      .arburst  (m_axi_arburst),
+      .arlock   (m_axi_arlock),
+      .arcache  (m_axi_arcache),
+      .arprot   (m_axi_arprot),
+      .arqos    (m_axi_arqos),
+      .aruser   (m_axi_aruser),
+      .arvalid  (m_axi_arvalid),
+      .arready  (m_axi_arready),
+      .rid      (m_axi_rid),
+      .rdata    (m_axi_rdata),
+      .rresp    (m_axi_rresp),
+      .rlast    (m_axi_rlast),
+      .ruser    (m_axi_ruser),
+      .rvalid   (m_axi_rvalid),
+      .rready   (m_axi_rready),
+  ); */
+  m_axi m_axi_inst(/*AUTOINST*/);
+
+  /* s_axi_stream AUTO_TEMPLATE (
+      .clk    (s_axi_stream_aclk),
+      .xrst   (s_axi_stream_aresetn),
+      .tready (s_axi_stream_tready),
+      .tdata  (s_axi_stream_tdata),
+      .tstrb  (s_axi_stream_tstrb),
+      .tlast  (s_axi_stream_tlast),
+      .tvalid (s_axi_stream_tvalid),
+  ); */
+  s_axi_stream s_axi_stream_inst(/*AUTOINST*/);
+
+  /* m_axi_stream AUTO_TEMPLATE (
+    .clk    (m00_axis_aclk),
+    .xrst   (m00_axis_aresetn),
+    .tvalid (m00_axis_tvalid),
+    .tdata  (m00_axis_tdata),
+    .tstrb  (m00_axis_tstrb),
+    .tlast  (m00_axis_tlast),
+    .tready (m00_axis_tready),
+  ); */
+  m_axi_stream m_axi_stream_inst(/*AUTOINST*/);
+
+endmodule
+

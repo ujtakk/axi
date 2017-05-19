@@ -58,7 +58,7 @@ else
   Q = @
 endif
 
-DEP_RB = dep.rb
+DEP_RB = ./dep.rb
 ERUBY  = erb -T - $<
 VMODE  = cp $< $@ ; chmod 644 $@ ; \
          emacs --batch --no-site-file $@ \

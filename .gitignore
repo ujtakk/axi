@@ -1,0 +1,6 @@
+Makefile.dep
+dep.in
+
+*.v
+*.v.in
+*.v.log
