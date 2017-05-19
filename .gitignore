@@ -1,15 +1,23 @@
 Makefile.dep
 dep.in
 transcript
-vivado
-!vivado/*.tcl
 work
 
 *.v
 *.vh
 !dist/*.v
 !dist/*.vh
+
 *.v.in
 *.v.log
 *.com
 *.log
+*.str
+
+*.sim
+*.cache
+*.hw
+*.xpr
+
+vivado/ip/ip.runs/*
+!vivado/ip/ip.runs/*/*.tcl
