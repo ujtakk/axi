@@ -1,12 +1,14 @@
 Makefile.dep
 dep.in
-dist
 transcript
 vivado
+!vivado/*.tcl
 work
 
 *.v
 *.vh
+!dist/*.v
+!dist/*.vh
 *.v.in
 *.v.log
 *.com

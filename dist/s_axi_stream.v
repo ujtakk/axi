@@ -1,8 +1,12 @@
-% load "parameters.rb"
 
 `timescale 1 ns / 1 ps
 
-module s_axi_stream(/*AUTOARG*/);
+module s_axi_stream(/*AUTOARG*/
+   // Outputs
+   tready, buf_data,
+   // Inputs
+   clk, xrst, tvalid, tdata, tstrb, tlast, buf_re
+   );
 `include "parameters.vh"
 
   parameter WORDS = 2 ** BUFSIZE;

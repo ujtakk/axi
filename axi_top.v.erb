@@ -13,7 +13,7 @@
       "mem_addr"
       "mem_wdata"
       "mem_rdata"
-      "buf_en"
+      "buf_re"
       "buf_data"
    ))) */
 
@@ -188,7 +188,7 @@ module axi_top(/*AUTOARG*/);
   wire [MEMSIZE-1:0]  mem_addr;
   wire [DWIDTH-1:0]   mem_wdata;
   wire [DWIDTH-1:0]   mem_rdata;
-  wire                buf_en;
+  wire                buf_re;
   wire [DWIDTH-1:0]   buf_data;
 
   /*AUTOREG*/

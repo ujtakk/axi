@@ -1,0 +1,126 @@
+
+`timescale 1 ns / 1 ps
+
+module m_axi_stream(/*AUTOARG*/
+   // Outputs
+   tvalid, tdata, tstrb, tlast,
+   // Inputs
+   clk, xrst, tready
+   );
+`include "parameters.vh"
+
+  parameter WORDS = 2 ** BUFSIZE;
+
+  parameter MAX_COUNT = 32;
+
+  localparam  S_IDLE  = 'd0,
+              S_COUNT = 'd1,
+              S_SEND  = 'd2;
+
+  /*AUTOINPUT*/
+  input clk;
+  input xrst;
+  input tready;
+
+  /*AUTOOUTPUT*/
+  output                tvalid;
+  output [DWIDTH-1:0]   tdata;
+  output [DWIDTH/8-1:0] tstrb;
+  output                tlast;
+
+  /*AUTOWIRE*/
+  wire s_send_end;
+  wire fifo_re;
+
+  /*AUTOREG*/
+  reg               r_state;
+  reg [DWIDTH-1:0]  r_count;
+  reg               r_tvalid;
+  reg [DWIDTH-1:0]  r_tdata;
+  reg               r_tlast;
+  reg [DWIDTH-1:0]  r_read_ptr;
+  reg               r_send_end;
+
+//==========================================================
+// core control
+//==========================================================
+
+  always @(posedge clk)
+    if (!xrst) begin
+      r_state <= S_IDLE;
+      r_count <= 0;
+    end
+    else
+      case (r_state)
+        S_IDLE:
+          r_state <= S_COUNT;
+
+        S_COUNT:
+          if (r_count == MAX_COUNT - 1)
+            r_state <= S_SEND;
+          else
+            r_count <= r_count + 1;
+
+        S_SEND:
+          if (s_send_end)
+            r_state <= S_IDLE;
+
+        default:
+          r_state <= S_IDLE;
+      endcase
+
+//==========================================================
+// stream control
+//==========================================================
+
+  assign tvalid = r_tvalid;
+  assign tstrb  = {DWIDTH/8{1'b1}};
+  assign tlast  = r_tlast;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_tvalid <= 0;
+    else
+      r_tvalid <= r_state == S_SEND && r_read_ptr < WORDS;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_tlast <= 0;
+    else
+      r_tlast <= r_read_ptr == WORDS - 1;
+
+//==========================================================
+// fifo control
+//==========================================================
+
+  assign s_send_end = r_send_end;
+
+  assign tdata = r_tdata;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_tdata <= 1;
+    else if (fifo_re)
+      r_tdata <= r_read_ptr + 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_read_ptr <= 0;
+    else
+      if (r_read_ptr <= WORDS - 1)
+        if (fifo_re)
+          r_read_ptr <= r_read_ptr + 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_send_end <= 0;
+    else
+      if (r_read_ptr <= WORDS - 1) begin
+        if (fifo_re)
+          r_send_end <= 0;
+      end
+      else if (r_read_ptr == WORDS)
+        r_send_end <= 1;
+
+endmodule
+

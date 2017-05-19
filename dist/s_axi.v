@@ -1,8 +1,17 @@
-% load "parameters.rb"
 
 `timescale 1 ns / 1 ps
 
-module s_axi(/*AUTOARG*/);
+module s_axi(/*AUTOARG*/
+   // Outputs
+   awready, wready, bvalid, bid, bresp, buser, arready, rvalid, rid,
+   rdata, rresp, rlast, ruser, mem_we, mem_addr, mem_wdata,
+   // Inputs
+   clk, xrst, awid, awaddr, awlen, awsize, awburst, awlock, awcache,
+   awprot, awqos, awregion, awuser, awvalid, wdata, wstrb, wlast,
+   wuser, wvalid, bready, arid, araddr, arlen, arsize, arburst,
+   arlock, arcache, arprot, arqos, arregion, aruser, arvalid, rready,
+   mem_rdata
+   );
 `include "parameters.vh"
 
   parameter AWIDTH = MEMSIZE + DWIDTH/32 + 1;

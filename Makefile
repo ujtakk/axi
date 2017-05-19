@@ -1,4 +1,4 @@
-VERBOSE   = 1
+VERBOSE   = 0
 SIMULATOR = vsim
 MODULE    = axi_top.v.erb
 TARGET    = test/test_$(MODULE)

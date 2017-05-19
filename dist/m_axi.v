@@ -1,0 +1,416 @@
+
+`timescale 1 ns / 1 ps
+
+module m_axi(/*AUTOARG*/
+   // Outputs
+   ack, err, awid, awaddr, awlen, awsize, awburst, awlock, awcache,
+   awprot, awqos, awuser, awvalid, wdata, wstrb, wlast, wuser, wvalid,
+   bready, arid, araddr, arlen, arsize, arburst, arlock, arcache,
+   arprot, arqos, aruser, arvalid, rready,
+   // Inputs
+   clk, xrst, req, awready, wready, bid, bresp, buser, bvalid,
+   arready, rid, rdata, rresp, rlast, ruser, rvalid
+   );
+`include "parameters.vh"
+
+  parameter BURST_LEN     = 16;
+  parameter TXN_NUM       = clogb2(BURST_LEN-1);
+  parameter NO_BURSTS_REQ = 12 - clogb2(BURST_LEN*DWIDTH/8-1);
+
+  localparam  S_IDLE  = 'd0,
+              S_WRITE = 'd1,
+              S_READ  = 'd2,
+              S_COMP  = 'd3;
+
+  /*AUTOINPUT*/
+  input                   clk;
+  input                   xrst;
+  input                   req;
+  input                   awready;
+  input                   wready;
+  input [ID_WIDTH-1:0]    bid;
+  input [1:0]             bresp;
+  input [BUSER_WIDTH-1:0] buser;
+  input                   bvalid;
+  input                   arready;
+  input [ID_WIDTH-1:0]    rid;
+  input [DWIDTH-1:0]      rdata;
+  input [1:0]             rresp;
+  input                   rlast;
+  input [RUSER_WIDTH-1:0] ruser;
+  input                   rvalid;
+
+  /*AUTOOUTPUT*/
+  output                    ack;
+  output                    err;
+  output [ID_WIDTH-1:0]     awid;
+  output [MEMSIZE-1:0]      awaddr;
+  output [7:0]              awlen;
+  output [2:0]              awsize;
+  output [1:0]              awburst;
+  output                    awlock;
+  output [3:0]              awcache;
+  output [2:0]              awprot;
+  output [3:0]              awqos;
+  output [AWUSER_WIDTH-1:0] awuser;
+  output                    awvalid;
+  output [DWIDTH-1:0]       wdata;
+  output [DWIDTH/8-1:0]     wstrb;
+  output                    wlast;
+  output [WUSER_WIDTH-1:0]  wuser;
+  output                    wvalid;
+  output                    bready;
+  output [ID_WIDTH-1:0]     arid;
+  output [MEMSIZE-1:0]      araddr;
+  output [7:0]              arlen;
+  output [2:0]              arsize;
+  output [1:0]              arburst;
+  output                    arlock;
+  output [3:0]              arcache;
+  output [2:0]              arprot;
+  output [3:0]              arqos;
+  output [ARUSER_WIDTH-1:0] aruser;
+  output                    arvalid;
+  output                    rready;
+
+  /*AUTOWIRE*/
+  wire s_write_end;
+  wire s_read_end;
+  wire s_comp_end;
+  wire err_wresp;
+  wire err_rresp;
+  wire err_diff;
+  wire wnext;
+  wire rnext;
+  wire [TXN_NUM+2-1:0] burst_size;
+
+  /*AUTOREG*/
+  reg [1:0]               r_state;
+  reg                     r_ack;
+  reg                     r_err;
+  reg [ID_WIDTH-1:0]      r_awid;
+  reg [MEMSIZE-1:0]       r_awaddr;
+  reg [7:0]               r_awlen;
+  reg [2:0]               r_awsize;
+  reg [1:0]               r_awburst;
+  reg                     r_awlock;
+  reg [3:0]               r_awcache;
+  reg [2:0]               r_awprot;
+  reg [3:0]               r_awqos;
+  reg [AWUSER_WIDTH-1:0]  r_awuser;
+  reg                     r_awvalid;
+  reg [DWIDTH-1:0]        r_wdata;
+  reg [DWIDTH/8-1:0]      r_wstrb;
+  reg                     r_wlast;
+  reg [WUSER_WIDTH-1:0]   r_wuser;
+  reg                     r_wvalid;
+  reg                     r_bready;
+  reg [ID_WIDTH-1:0]      r_arid;
+  reg [MEMSIZE-1:0]       r_araddr;
+  reg [7:0]               r_arlen;
+  reg [2:0]               r_arsize;
+  reg [1:0]               r_arburst;
+  reg                     r_arlock;
+  reg [3:0]               r_arcache;
+  reg [2:0]               r_arprot;
+  reg [3:0]               r_arqos;
+  reg [ARUSER_WIDTH-1:0]  r_aruser;
+  reg                     r_arvalid;
+  reg                     r_rready;
+  reg [NO_BURSTS_REQ:0]   r_write_burst_cnt;
+  reg [NO_BURSTS_REQ:0]   r_read_burst_cnt;
+  reg [TXN_NUM:0]         r_write_idx;
+  reg [TXN_NUM:0]         r_read_idx;
+  reg                     r_write_single_burst;
+  reg                     r_read_single_burst;
+  reg                     r_write_active;
+  reg                     r_read_active;
+  reg [DWIDTH-1:0]        r_exp_rdata;
+
+//==========================================================
+// core control
+//==========================================================
+
+  assign s_write_end = bvalid && r_bready && r_write_burst_cnt[NO_BURSTS_REQ];
+  assign s_read_end  = rvalid && r_rready && r_read_idx == BURST_LEN - 1
+                    && r_read_burst_cnt[NO_BURSTS_REQ];
+  assign s_comp_end  = r_state == S_COMP;
+
+  assign burst_size = BURST_LEN * DWIDTH/8;
+
+  always @(posedge clk)
+    if (!xrst) begin
+      r_state <= S_IDLE;
+      r_write_single_burst <= 0;
+      r_read_single_burst  <= 0;
+    end
+    else
+      case (r_state)
+        S_IDLE:
+          if (req)
+            r_state <= S_WRITE;
+
+        S_WRITE:
+          if (s_write_end)
+            r_state <= S_READ;
+          else if (!r_awvalid && !r_write_single_burst && !r_write_active)
+            r_write_single_burst <= 1;
+          else
+            r_write_single_burst <= 0;
+
+        S_READ:
+          if (s_read_end)
+            r_state <= S_COMP;
+          else if (!r_arvalid && !r_read_active && !r_read_single_burst)
+            r_read_single_burst <= 1;
+          else
+            r_read_single_burst <= 0;
+
+        S_COMP:
+          if (s_comp_end)
+            r_state <= S_IDLE;
+
+        default:
+          r_state <= S_IDLE;
+      endcase
+
+  always @(posedge clk)
+    if (!xrst)
+      r_write_active <= 0;
+    else if (req)
+      r_write_active <= 0;
+    else if (r_write_single_burst)
+      r_write_active <= 1;
+    else if (bvalid && r_bready)
+      r_write_active <= 0;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_read_active <= 0;
+    else if (req)
+      r_read_active <= 0;
+    else if (r_read_single_burst)
+      r_read_active <= 1;
+    else if (rvalid && r_rready && rlast)
+      r_read_active <= 0;
+
+//==========================================================
+// write address control
+//==========================================================
+
+  assign awvalid  = r_awvalid;
+  assign awid     = 0;
+  assign awaddr   = r_awaddr;
+  assign awlen    = BURST_LEN - 1;
+  assign awsize   = clogb2(DWIDTH/8 - 1);
+  assign awburst  = 2'b01;
+  assign awlock   = 1'b0;
+  assign awcache  = 4'b0010;
+  assign awprot   = 3'h0;
+  assign awqos    = 4'h0;
+  assign awuser   = 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_awvalid <= 0;
+    else if (req)
+      r_awvalid <= 0;
+    else if (!r_awvalid && r_write_single_burst)
+      r_awvalid <= 1;
+    else if (awready && r_awvalid)
+      r_awvalid <= 0;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_awaddr <= 0;
+    else if (req)
+      r_awaddr <= 0;
+    else if (awready && r_awvalid)
+      r_awaddr <= r_awaddr + burst_size;
+
+//==========================================================
+// write data control
+//==========================================================
+
+  assign wvalid = r_wvalid;
+  assign wdata  = r_wdata;
+  assign wstrb  = {DWIDTH/8{1'b1}};
+  assign wlast  = r_wlast;
+  assign wuser  = 0;
+
+  assign wnext = wready && r_wvalid;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_wvalid <= 0;
+    else if (req)
+      r_wvalid <= 0;
+    else if (!r_wvalid && r_write_single_burst)
+      r_wvalid <= 1;
+    else if (wnext && r_wlast)
+      r_wvalid <= 0;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_wdata <= 0;
+    else if (req)
+      r_wdata <= 0;
+    else if (wnext)
+      r_wdata <= r_wdata + 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_wlast <= 0;
+    else if (req)
+      r_wlast <= 0;
+    else if ((r_write_idx == BURST_LEN - 2 && BURST_LEN >= 2 && wnext)
+              || BURST_LEN == 1)
+      r_wlast <= 1;
+    else if (wnext)
+      r_wlast <= 0;
+    else if (r_wlast && BURST_LEN == 1)
+      r_wlast <= 0;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_write_idx <= 0;
+    else if (req || r_write_single_burst)
+      r_write_idx <= 0;
+    else if (wnext && r_write_idx != BURST_LEN - 1)
+      r_write_idx <= r_write_idx + 1;
+
+//==========================================================
+// write response control
+//==========================================================
+
+  assign bready = r_bready;
+
+  assign err_wresp = r_bready && bvalid && bresp[1];
+
+  always @(posedge clk)
+    if (!xrst)
+      r_bready <= 0;
+    else if (req)
+      r_bready <= 0;
+    else if (bvalid && !r_bready)
+      r_bready <= 1;
+    else if (r_bready)
+      r_bready <= 0;
+
+//==========================================================
+// read address control
+//==========================================================
+
+  assign arvalid  = r_arvalid;
+  assign arid     = 0;
+  assign araddr   = r_araddr;
+  assign arlen    = BURST_LEN - 1;
+  assign arsize   = clogb2(DWIDTH/8 - 1);
+  assign arburst  = 2'b01;
+  assign arlock   = 1'b0;
+  assign arcache  = 4'b0010;
+  assign arprot   = 3'h0;
+  assign arqos    = 4'h0;
+  assign aruser   = 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_arvalid <= 0;
+    else if (req)
+      r_arvalid <= 0;
+    else if (!r_arvalid && r_read_single_burst)
+      r_arvalid <= 1;
+    else if (arready && r_arvalid)
+      r_arvalid <= 0;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_araddr <= 0;
+    else if (req)
+      r_araddr <= 0;
+    else if (arready && r_arvalid)
+      r_araddr <= r_araddr + burst_size;
+
+//==========================================================
+// read data control
+//==========================================================
+
+  assign rready = r_rready;
+
+  assign rnext = rvalid && r_rready;
+
+  assign err_rresp = r_rready && rvalid && rresp[1];
+
+  always @(posedge clk)
+    if (!xrst)
+      r_rready <= 0;
+    else if (req)
+      r_rready <= 0;
+    else if (rvalid) begin
+      if (rlast && r_rready)
+        r_rready <= 0;
+      else
+        r_rready <= 1;
+    end
+
+  always @(posedge clk)
+    if (!xrst)
+      r_read_idx <= 0;
+    else if (req || r_read_single_burst)
+      r_read_idx <= 0;
+    else if (rnext && r_read_idx != BURST_LEN - 1)
+      r_read_idx <= r_read_idx + 1;
+
+//==========================================================
+// mmap control
+//==========================================================
+
+  assign ack = r_ack;
+  assign err = r_err;
+
+  assign err_diff = rnext && rdata != r_exp_rdata;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_ack <= 0;
+    else if (req)
+      r_ack <= 0;
+    else if (s_comp_end)
+      r_ack <= 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_err <= 0;
+    else if (req)
+      r_err <= 0;
+    else if (err_diff || err_wresp || err_rresp)
+      r_err <= 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_exp_rdata <= 0;
+    else if (rvalid && r_rready)
+      r_exp_rdata <= r_exp_rdata + 1;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_write_burst_cnt <= 0;
+    else if (req)
+      r_write_burst_cnt <= 0;
+    else if (awready && r_awvalid) begin
+      if (r_write_burst_cnt[NO_BURSTS_REQ] == 1'b0)
+        r_write_burst_cnt <= r_write_burst_cnt + 1;
+    end
+
+  always @(posedge clk)
+    if (!xrst)
+      r_read_burst_cnt <= 0;
+    else if (req)
+      r_read_burst_cnt <= 0;
+    else if (arready && r_arvalid) begin
+      if (r_read_burst_cnt[NO_BURSTS_REQ] == 1'b0)
+        r_read_burst_cnt <= r_read_burst_cnt + 1;
+    end
+
+endmodule
+
