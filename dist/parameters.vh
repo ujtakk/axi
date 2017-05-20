@@ -6,7 +6,7 @@ parameter REGSIZE = 5;
 parameter MEMSIZE = 10;
 parameter BUFSIZE = 7;
 
-parameter ID_WIDTH = 1;
+parameter ID_WIDTH = 12;
 
 parameter AWUSER_WIDTH = 0;
 parameter ARUSER_WIDTH = 0;
