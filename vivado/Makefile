@@ -1,3 +1,4 @@
+.PHONY: debug sw hw zedboard ip all
 
 debug:
 	xsct debug.tcl
@@ -13,3 +14,6 @@ zedboard:
 
 ip:
 	vivado -nojournal -nolog -mode batch -source ip.tcl
+
+all: ip zedboard hw sw debug
+
