@@ -7,6 +7,14 @@ set proj_name zedboard
 
 open_project $origin_dir/$proj_name/$proj_name.xpr
 
+# open_bd_design \
+#   $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd
+# update_ip_catalog -rebuild -scan_changes
+# report_ip
+# upgrade_ip
+# export_ip_user_files
+# generate_target all
+
 reset_run   synth_1
 launch_runs synth_1
 wait_on_run synth_1

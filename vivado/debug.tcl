@@ -11,6 +11,9 @@ set hdf_filename_only [lindex [split $hdf_filename /] end]
 set top_module_name [lindex [split $hdf_filename_only .] 0]
 set hw_project_name ${top_module_name}_hw_platform_0
 
+setws $sdk_ws_dir
+projects -build -type app -name $app_name
+
 connect
 targets -set -nocase -filter {name =~ "ARM*#0"}
 rst
