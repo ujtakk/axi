@@ -1,13 +1,13 @@
-.PHONY: debug sw hw zedboard ip all
+.PHONY: run sw hw zedboard ip all
 
-debug:
-	xsct debug.tcl
+run:
+	xsct run.tcl
 
 sw:
-	xsct sw_flow.tcl
+	xsct sw.tcl
 
 hw:
-	vivado -nojournal -nolog -mode batch -source hw_flow.tcl
+	vivado -nojournal -nolog -mode batch -source hw.tcl
 
 zedboard:
 	vivado -nojournal -nolog -mode batch -source zedboard.tcl
