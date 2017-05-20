@@ -1,3 +1,5 @@
+#!/usr/bin/env vivado -mode batch -source
+
 #
 # Vivado (TM) v2016.4 (64-bit)
 #
