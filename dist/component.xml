@@ -4562,7 +4562,7 @@
 			<xilinx:displayName>axi_top_v1_0</xilinx:displayName>
 			<xilinx:definitionSource>package_project</xilinx:definitionSource>
 			<xilinx:coreRevision>6</xilinx:coreRevision>
-			<xilinx:coreCreationDateTime>2017-05-21T12:47:46Z</xilinx:coreCreationDateTime>
+			<xilinx:coreCreationDateTime>2017-05-21T15:49:20Z</xilinx:coreCreationDateTime>
 			<xilinx:tags>
 				<xilinx:tag xilinx:name="user.org:user:axi_top:1.0_ARCHIVE_LOCATION">/ram/home/takau/axi/dist</xilinx:tag>
 			</xilinx:tags>

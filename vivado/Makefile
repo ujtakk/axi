@@ -13,11 +13,12 @@ hw:
 	vivado -nojournal -nolog -mode batch -source hw.tcl
 
 zedboard:
-	vivado -nojournal -nolog -mode batch -source zedboard.tcl
+	# vivado -nojournal -nolog -mode batch -source zedboard.tcl
+	vivado -mode batch -source zedboard.tcl
 
 ip:
 	vivado -nojournal -nolog -mode batch -source ip.tcl
 
 clean:
-	# cp zedboard/zedboard.sdk/hello/src/helloworld.c ./
 	rm -rf ip zedboard .Xil
+	rm -f vivado*

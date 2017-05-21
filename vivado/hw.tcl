@@ -5,14 +5,14 @@
 set origin_dir .
 set proj_name zedboard
 
-open_project /ram/home/takau/axi/vivado/ip/ip.xpr
-ipx::open_ipxact_file /ram/home/takau/axi/dist/component.xml
+open_project $origin_dir/ip/ip.xpr
+ipx::open_ipxact_file $origin_dir/../dist/component.xml
 ipx::merge_project_changes hdl_parameters [ipx::current_core]
 set_property core_revision 6 [ipx::current_core]
 ipx::create_xgui_files [ipx::current_core]
 ipx::update_checksums [ipx::current_core]
 ipx::save_core [ipx::current_core]
-update_ip_catalog -rebuild -repo_path /ram/home/takau/axi/dist
+update_ip_catalog -rebuild -repo_path $origin_dir/../dist
 close_project
 
 open_project $origin_dir/$proj_name/$proj_name.xpr
@@ -34,7 +34,7 @@ export_simulation -of_objects \
     {questa=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/questa} \
     {ies=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/ies} \
     {vcs=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/vcs} \
-    {riviera=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/riviera}\
+    {riviera=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/riviera} \
   ] \
   -use_ip_compiled_libs -force -quiet
 

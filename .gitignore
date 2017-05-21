@@ -2,6 +2,10 @@ Makefile.dep
 dep.in
 transcript
 work
+.Xil
+
+vivado/ip
+vivado/zedboard
 
 *.v
 *.vh
@@ -12,12 +16,6 @@ work
 *.v.log
 *.com
 *.log
+*.jou
 *.str
 
-*.sim
-*.cache
-*.hw
-*.xpr
-
-vivado/ip
-vivado/zedboard
