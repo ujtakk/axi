@@ -3,7 +3,7 @@
 # ref: http://www.fpgadeveloper.com/2016/11/tcl-automation-tips-for-vivado-xilinx-sdk.html
 
 set origin_dir .
-set proj_name zedboard
+set proj_name [lindex $argv 0]
 set app_name hello
 
 set sdk_ws_dir $origin_dir/$proj_name/$proj_name.sdk

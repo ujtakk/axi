@@ -1,7 +1,7 @@
 #!/usr/bin/env xsct
 
 set origin_dir .
-set proj_name zedboard
+set proj_name [lindex $argv 0]
 set app_name hello
 
 set sdk_ws_dir $origin_dir/$proj_name/$proj_name.sdk

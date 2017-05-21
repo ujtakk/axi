@@ -3,7 +3,7 @@
 # ref: http://www.fpgadeveloper.com/2016/11/tcl-automation-tips-for-vivado-xilinx-sdk.html
 
 set origin_dir .
-set proj_name zedboard
+set proj_name [lindex $argv 0]
 
 open_project $origin_dir/ip/ip.xpr
 ipx::open_ipxact_file $origin_dir/../dist/component.xml

@@ -1,24 +1,29 @@
+BOARD = zybo
+
 .PHONY: run sw hw zedboard ip all clean
 
 run:
-	cp helloworld.c zedboard/zedboard.sdk/hello/src
-	xsct run.tcl
+	cp helloworld.c ${BOARD}/${BOARD}.sdk/hello/src
+	xsct run.tcl ${BOARD}
 
-all: clean ip zedboard hw sw run
+all: clean ip ${BOARD} hw sw run
 
 sw:
-	xsct sw.tcl
+	xsct sw.tcl ${BOARD}
 
 hw:
-	vivado -nojournal -nolog -mode batch -source hw.tcl
-
-zedboard:
-	# vivado -nojournal -nolog -mode batch -source zedboard.tcl
-	vivado -mode batch -source zedboard.tcl
+	vivado -nojournal -nolog -mode batch -source hw.tcl -tclargs ${BOARD}
 
 ip:
 	vivado -nojournal -nolog -mode batch -source ip.tcl
 
+zedboard:
+	vivado -nojournal -nolog -mode batch -source zedboard.tcl
+
+zybo:
+	vivado -nojournal -nolog -mode batch -source zybo.tcl
+
 clean:
-	rm -rf ip zedboard .Xil
+	rm -rf ip zybo zedboard .Xil
 	rm -f vivado*
+
