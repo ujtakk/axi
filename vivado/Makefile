@@ -1,6 +1,6 @@
-BOARD = zybo
+BOARD = zedboard
 
-.PHONY: run sw hw zedboard ip all clean
+.PHONY: run sw hw zybo zedboard ip all clean
 
 run:
 	cp helloworld.c ${BOARD}/${BOARD}.sdk/hello/src
