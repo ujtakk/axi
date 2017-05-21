@@ -1,7 +1,10 @@
-.PHONY: run sw hw zedboard ip all
+.PHONY: run sw hw zedboard ip all clean
 
 run:
+	cp helloworld.c zedboard/zedboard.sdk/hello/src
 	xsct run.tcl
+
+all: clean ip zedboard hw sw run
 
 sw:
 	xsct sw.tcl
@@ -15,5 +18,6 @@ zedboard:
 ip:
 	vivado -nojournal -nolog -mode batch -source ip.tcl
 
-all: ip zedboard hw sw debug
-
+clean:
+	# cp zedboard/zedboard.sdk/hello/src/helloworld.c ./
+	rm -rf ip zedboard .Xil

@@ -19,5 +19,5 @@ work
 *.hw
 *.xpr
 
-vivado/ip/ip.runs/*
-!vivado/ip/ip.runs/*/*.tcl
+vivado/ip
+vivado/zedboard

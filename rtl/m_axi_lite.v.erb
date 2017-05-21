@@ -28,20 +28,21 @@ module m_axi_lite(/*AUTOARG*/);
   input               rvalid;
 
   /*AUTOOUTPUT*/
-  output                ack;
-  output                err;
+  output                  ack;
+  output                  err;
+  output [DWIDTH-1:0]     probe;
 
-  output                awvalid;
-  output [REGSIZE-1:0]  awaddr;
-  output [2:0]          awprot;
-  output                wvalid;
-  output [DWIDTH-1:0]   wdata;
-  output [DWIDTH/8-1:0] wstrb;
-  output                bready;
-  output                arvalid;
-  output [REGSIZE-1:0]   araddr;
-  output [2:0]          arprot;
-  output                rready;
+  output                  awvalid;
+  output [REG_WIDTH-1:0]  awaddr;
+  output [2:0]            awprot;
+  output                  wvalid;
+  output [DWIDTH-1:0]     wdata;
+  output [DWIDTH/8-1:0]   wstrb;
+  output                  bready;
+  output                  arvalid;
+  output [REG_WIDTH-1:0]  araddr;
+  output [2:0]            arprot;
+  output                  rready;
 
   /*AUTOWIRE*/
   wire s_write_end;
@@ -80,6 +81,8 @@ module m_axi_lite(/*AUTOARG*/);
 //==========================================================
 // core control
 //==========================================================
+
+  assign probe = {30'h0, r_state};
 
   assign s_write_end = r_last_write && r_bready && bvalid;
   assign s_read_end  = r_last_read  && r_rready && rvalid;

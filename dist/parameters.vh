@@ -8,6 +8,10 @@ parameter BUFSIZE = 7;
 
 parameter ID_WIDTH = 12;
 
+parameter LSB = DWIDTH/32 + 1;
+parameter REG_WIDTH = REGSIZE + LSB;
+parameter MEM_WIDTH = MEMSIZE + LSB;
+
 parameter AWUSER_WIDTH = 0;
 parameter ARUSER_WIDTH = 0;
 parameter WUSER_WIDTH  = 0;

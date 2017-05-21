@@ -97,7 +97,7 @@ if { $::argc > 0 } {
 set orig_proj_dir "[file normalize "$origin_dir/ip"]"
 
 # Create project
-create_project ip ./ip -part xc7z020clg484-1
+create_project ip ./ip -part xc7z020clg484-1 -force
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]

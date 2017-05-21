@@ -35,8 +35,11 @@ module m_axi(/*AUTOARG*/);
   /*AUTOOUTPUT*/
   output                    ack;
   output                    err;
+  output [DWIDTH-1:0]       probe;
+
+  output                    awvalid;
   output [ID_WIDTH-1:0]     awid;
-  output [MEMSIZE-1:0]      awaddr;
+  output [MEM_WIDTH-1:0]    awaddr;
   output [7:0]              awlen;
   output [2:0]              awsize;
   output [1:0]              awburst;
@@ -45,15 +48,15 @@ module m_axi(/*AUTOARG*/);
   output [2:0]              awprot;
   output [3:0]              awqos;
   output [AWUSER_WIDTH-1:0] awuser;
-  output                    awvalid;
+  output                    wvalid;
   output [DWIDTH-1:0]       wdata;
   output [DWIDTH/8-1:0]     wstrb;
   output                    wlast;
   output [WUSER_WIDTH-1:0]  wuser;
-  output                    wvalid;
   output                    bready;
+  output                    arvalid;
   output [ID_WIDTH-1:0]     arid;
-  output [MEMSIZE-1:0]      araddr;
+  output [MEM_WIDTH-1:0]    araddr;
   output [7:0]              arlen;
   output [2:0]              arsize;
   output [1:0]              arburst;
@@ -62,7 +65,6 @@ module m_axi(/*AUTOARG*/);
   output [2:0]              arprot;
   output [3:0]              arqos;
   output [ARUSER_WIDTH-1:0] aruser;
-  output                    arvalid;
   output                    rready;
 
   /*AUTOWIRE*/
@@ -81,7 +83,7 @@ module m_axi(/*AUTOARG*/);
   reg                     r_ack;
   reg                     r_err;
   reg [ID_WIDTH-1:0]      r_awid;
-  reg [MEMSIZE-1:0]       r_awaddr;
+  reg [MEM_WIDTH-1:0]     r_awaddr;
   reg [7:0]               r_awlen;
   reg [2:0]               r_awsize;
   reg [1:0]               r_awburst;
@@ -98,7 +100,7 @@ module m_axi(/*AUTOARG*/);
   reg                     r_wvalid;
   reg                     r_bready;
   reg [ID_WIDTH-1:0]      r_arid;
-  reg [MEMSIZE-1:0]       r_araddr;
+  reg [MEM_WIDTH-1:0]     r_araddr;
   reg [7:0]               r_arlen;
   reg [2:0]               r_arsize;
   reg [1:0]               r_arburst;
@@ -122,6 +124,8 @@ module m_axi(/*AUTOARG*/);
 //==========================================================
 // core control
 //==========================================================
+
+  assign probe = {30'h0, r_state};
 
   assign s_write_end = bvalid && r_bready && r_write_burst_cnt[NO_BURSTS_REQ];
   assign s_read_end  = rvalid && r_rready && r_read_idx == BURST_LEN - 1

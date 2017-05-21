@@ -35,7 +35,7 @@ module test_axi_top;
   reg			m_axi_stream_tready;	// To dut0 of axi_top.v
   reg			m_axi_wready;		// To dut0 of axi_top.v
   reg			s_axi_aclk;		// To dut0 of axi_top.v
-  reg [MEMSIZE-1:0]	s_axi_araddr;		// To dut0 of axi_top.v
+  reg [MEM_WIDTH-1:0]	s_axi_araddr;		// To dut0 of axi_top.v
   reg [1:0]		s_axi_arburst;		// To dut0 of axi_top.v
   reg [3:0]		s_axi_arcache;		// To dut0 of axi_top.v
   reg			s_axi_aresetn;		// To dut0 of axi_top.v
@@ -48,7 +48,7 @@ module test_axi_top;
   reg [2:0]		s_axi_arsize;		// To dut0 of axi_top.v
   reg [ARUSER_WIDTH-1:0] s_axi_aruser;		// To dut0 of axi_top.v
   reg			s_axi_arvalid;		// To dut0 of axi_top.v
-  reg [MEMSIZE-1:0]	s_axi_awaddr;		// To dut0 of axi_top.v
+  reg [MEM_WIDTH-1:0]	s_axi_awaddr;		// To dut0 of axi_top.v
   reg [1:0]		s_axi_awburst;		// To dut0 of axi_top.v
   reg [3:0]		s_axi_awcache;		// To dut0 of axi_top.v
   reg [ID_WIDTH-1:0]	s_axi_awid;		// To dut0 of axi_top.v
@@ -62,11 +62,11 @@ module test_axi_top;
   reg			s_axi_awvalid;		// To dut0 of axi_top.v
   reg			s_axi_bready;		// To dut0 of axi_top.v
   reg			s_axi_lite_aclk;	// To dut0 of axi_top.v
-  reg [REGSIZE-1:0]	s_axi_lite_araddr;	// To dut0 of axi_top.v
+  reg [REG_WIDTH-1:0]	s_axi_lite_araddr;	// To dut0 of axi_top.v
   reg			s_axi_lite_aresetn;	// To dut0 of axi_top.v
   reg [2:0]		s_axi_lite_arprot;	// To dut0 of axi_top.v
   reg			s_axi_lite_arvalid;	// To dut0 of axi_top.v
-  reg [REGSIZE-1:0]	s_axi_lite_awaddr;	// To dut0 of axi_top.v
+  reg [REG_WIDTH-1:0]	s_axi_lite_awaddr;	// To dut0 of axi_top.v
   reg [2:0]		s_axi_lite_awprot;	// To dut0 of axi_top.v
   reg			s_axi_lite_awvalid;	// To dut0 of axi_top.v
   reg			s_axi_lite_bready;	// To dut0 of axi_top.v
@@ -92,7 +92,11 @@ module test_axi_top;
 
   /*AUTOWIRE*/
   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-  wire [MEMSIZE-1:0]	m_axi_araddr;		// From dut0 of axi_top.v
+  wire			ack_m_axi;		// From dut0 of axi_top.v
+  wire			ack_m_axi_lite;		// From dut0 of axi_top.v
+  wire			err_m_axi;		// From dut0 of axi_top.v
+  wire			err_m_axi_lite;		// From dut0 of axi_top.v
+  wire [MEM_WIDTH-1:0]	m_axi_araddr;		// From dut0 of axi_top.v
   wire [1:0]		m_axi_arburst;		// From dut0 of axi_top.v
   wire [3:0]		m_axi_arcache;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	m_axi_arid;		// From dut0 of axi_top.v
@@ -103,7 +107,7 @@ module test_axi_top;
   wire [2:0]		m_axi_arsize;		// From dut0 of axi_top.v
   wire [ARUSER_WIDTH-1:0] m_axi_aruser;		// From dut0 of axi_top.v
   wire			m_axi_arvalid;		// From dut0 of axi_top.v
-  wire [MEMSIZE-1:0]	m_axi_awaddr;		// From dut0 of axi_top.v
+  wire [MEM_WIDTH-1:0]	m_axi_awaddr;		// From dut0 of axi_top.v
   wire [1:0]		m_axi_awburst;		// From dut0 of axi_top.v
   wire [3:0]		m_axi_awcache;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	m_axi_awid;		// From dut0 of axi_top.v
@@ -115,10 +119,10 @@ module test_axi_top;
   wire [AWUSER_WIDTH-1:0] m_axi_awuser;		// From dut0 of axi_top.v
   wire			m_axi_awvalid;		// From dut0 of axi_top.v
   wire			m_axi_bready;		// From dut0 of axi_top.v
-  wire [REGSIZE-1:0]	m_axi_lite_araddr;	// From dut0 of axi_top.v
+  wire [REG_WIDTH-1:0]	m_axi_lite_araddr;	// From dut0 of axi_top.v
   wire [2:0]		m_axi_lite_arprot;	// From dut0 of axi_top.v
   wire			m_axi_lite_arvalid;	// From dut0 of axi_top.v
-  wire [REGSIZE-1:0]	m_axi_lite_awaddr;	// From dut0 of axi_top.v
+  wire [REG_WIDTH-1:0]	m_axi_lite_awaddr;	// From dut0 of axi_top.v
   wire [2:0]		m_axi_lite_awprot;	// From dut0 of axi_top.v
   wire			m_axi_lite_awvalid;	// From dut0 of axi_top.v
   wire			m_axi_lite_bready;	// From dut0 of axi_top.v
@@ -136,6 +140,8 @@ module test_axi_top;
   wire [DWIDTH/8-1:0]	m_axi_wstrb;		// From dut0 of axi_top.v
   wire [WUSER_WIDTH-1:0] m_axi_wuser;		// From dut0 of axi_top.v
   wire			m_axi_wvalid;		// From dut0 of axi_top.v
+  wire			probe0;			// From dut0 of axi_top.v
+  wire			probe1;			// From dut0 of axi_top.v
   wire			s_axi_arready;		// From dut0 of axi_top.v
   wire			s_axi_awready;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	s_axi_bid;		// From dut0 of axi_top.v
@@ -192,6 +198,12 @@ module test_axi_top;
 
   axi_top dut0(/*AUTOINST*/
 	       // Outputs
+	       .ack_m_axi		(ack_m_axi),
+	       .ack_m_axi_lite		(ack_m_axi_lite),
+	       .err_m_axi		(err_m_axi),
+	       .err_m_axi_lite		(err_m_axi_lite),
+	       .probe0			(probe0),
+	       .probe1			(probe1),
 	       .s_axi_lite_awready	(s_axi_lite_awready),
 	       .s_axi_lite_wready	(s_axi_lite_wready),
 	       .s_axi_lite_bresp	(s_axi_lite_bresp[1:0]),
@@ -200,14 +212,14 @@ module test_axi_top;
 	       .s_axi_lite_rdata	(s_axi_lite_rdata[DWIDTH-1:0]),
 	       .s_axi_lite_rresp	(s_axi_lite_rresp[1:0]),
 	       .s_axi_lite_rvalid	(s_axi_lite_rvalid),
-	       .m_axi_lite_awaddr	(m_axi_lite_awaddr[REGSIZE-1:0]),
+	       .m_axi_lite_awaddr	(m_axi_lite_awaddr[REG_WIDTH-1:0]),
 	       .m_axi_lite_awprot	(m_axi_lite_awprot[2:0]),
 	       .m_axi_lite_awvalid	(m_axi_lite_awvalid),
 	       .m_axi_lite_wdata	(m_axi_lite_wdata[DWIDTH-1:0]),
 	       .m_axi_lite_wstrb	(m_axi_lite_wstrb[DWIDTH/8-1:0]),
 	       .m_axi_lite_wvalid	(m_axi_lite_wvalid),
 	       .m_axi_lite_bready	(m_axi_lite_bready),
-	       .m_axi_lite_araddr	(m_axi_lite_araddr[REGSIZE-1:0]),
+	       .m_axi_lite_araddr	(m_axi_lite_araddr[REG_WIDTH-1:0]),
 	       .m_axi_lite_arprot	(m_axi_lite_arprot[2:0]),
 	       .m_axi_lite_arvalid	(m_axi_lite_arvalid),
 	       .m_axi_lite_rready	(m_axi_lite_rready),
@@ -225,7 +237,7 @@ module test_axi_top;
 	       .s_axi_ruser		(s_axi_ruser[RUSER_WIDTH-1:0]),
 	       .s_axi_rvalid		(s_axi_rvalid),
 	       .m_axi_awid		(m_axi_awid[ID_WIDTH-1:0]),
-	       .m_axi_awaddr		(m_axi_awaddr[MEMSIZE-1:0]),
+	       .m_axi_awaddr		(m_axi_awaddr[MEM_WIDTH-1:0]),
 	       .m_axi_awlen		(m_axi_awlen[7:0]),
 	       .m_axi_awsize		(m_axi_awsize[2:0]),
 	       .m_axi_awburst		(m_axi_awburst[1:0]),
@@ -242,7 +254,7 @@ module test_axi_top;
 	       .m_axi_wvalid		(m_axi_wvalid),
 	       .m_axi_bready		(m_axi_bready),
 	       .m_axi_arid		(m_axi_arid[ID_WIDTH-1:0]),
-	       .m_axi_araddr		(m_axi_araddr[MEMSIZE-1:0]),
+	       .m_axi_araddr		(m_axi_araddr[MEM_WIDTH-1:0]),
 	       .m_axi_arlen		(m_axi_arlen[7:0]),
 	       .m_axi_arsize		(m_axi_arsize[2:0]),
 	       .m_axi_arburst		(m_axi_arburst[1:0]),
@@ -261,14 +273,14 @@ module test_axi_top;
 	       // Inputs
 	       .s_axi_lite_aclk		(s_axi_lite_aclk),
 	       .s_axi_lite_aresetn	(s_axi_lite_aresetn),
-	       .s_axi_lite_awaddr	(s_axi_lite_awaddr[REGSIZE-1:0]),
+	       .s_axi_lite_awaddr	(s_axi_lite_awaddr[REG_WIDTH-1:0]),
 	       .s_axi_lite_awprot	(s_axi_lite_awprot[2:0]),
 	       .s_axi_lite_awvalid	(s_axi_lite_awvalid),
 	       .s_axi_lite_wdata	(s_axi_lite_wdata[DWIDTH-1:0]),
 	       .s_axi_lite_wstrb	(s_axi_lite_wstrb[DWIDTH/8-1:0]),
 	       .s_axi_lite_wvalid	(s_axi_lite_wvalid),
 	       .s_axi_lite_bready	(s_axi_lite_bready),
-	       .s_axi_lite_araddr	(s_axi_lite_araddr[REGSIZE-1:0]),
+	       .s_axi_lite_araddr	(s_axi_lite_araddr[REG_WIDTH-1:0]),
 	       .s_axi_lite_arprot	(s_axi_lite_arprot[2:0]),
 	       .s_axi_lite_arvalid	(s_axi_lite_arvalid),
 	       .s_axi_lite_rready	(s_axi_lite_rready),
@@ -285,7 +297,7 @@ module test_axi_top;
 	       .s_axi_aclk		(s_axi_aclk),
 	       .s_axi_aresetn		(s_axi_aresetn),
 	       .s_axi_awid		(s_axi_awid[ID_WIDTH-1:0]),
-	       .s_axi_awaddr		(s_axi_awaddr[MEMSIZE-1:0]),
+	       .s_axi_awaddr		(s_axi_awaddr[MEM_WIDTH-1:0]),
 	       .s_axi_awlen		(s_axi_awlen[7:0]),
 	       .s_axi_awsize		(s_axi_awsize[2:0]),
 	       .s_axi_awburst		(s_axi_awburst[1:0]),
@@ -303,7 +315,7 @@ module test_axi_top;
 	       .s_axi_wvalid		(s_axi_wvalid),
 	       .s_axi_bready		(s_axi_bready),
 	       .s_axi_arid		(s_axi_arid[ID_WIDTH-1:0]),
-	       .s_axi_araddr		(s_axi_araddr[MEMSIZE-1:0]),
+	       .s_axi_araddr		(s_axi_araddr[MEM_WIDTH-1:0]),
 	       .s_axi_arlen		(s_axi_arlen[7:0]),
 	       .s_axi_arsize		(s_axi_arsize[2:0]),
 	       .s_axi_arburst		(s_axi_arburst[1:0]),

@@ -1614,7 +1614,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>8e928ddc</spirit:value>
+						<spirit:value>4f70a0af</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1630,7 +1630,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>8e928ddc</spirit:value>
+						<spirit:value>4f70a0af</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1645,7 +1645,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>6164789d</spirit:value>
+						<spirit:value>22d80c17</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1659,12 +1659,102 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>feac07ec</spirit:value>
+						<spirit:value>df87577d</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
 		</spirit:views>
 		<spirit:ports>
+			<spirit:port>
+				<spirit:name>probe1</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="dependent"
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DWIDTH&apos;)) - 1)">31</spirit:left>
+						<spirit:right spirit:format="long">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>probe0</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:vector>
+						<spirit:left spirit:format="long"
+								spirit:resolve="dependent"
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DWIDTH&apos;)) - 1)">31</spirit:left>
+						<spirit:right spirit:format="long">0</spirit:right>
+					</spirit:vector>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>err_m_axi_lite</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>err_m_axi</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>ack_m_axi_lite</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
+			<spirit:port>
+				<spirit:name>ack_m_axi</spirit:name>
+				<spirit:wire>
+					<spirit:direction>out</spirit:direction>
+					<spirit:wireTypeDefs>
+						<spirit:wireTypeDef>
+							<spirit:typeName>wire</spirit:typeName>
+							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+						</spirit:wireTypeDef>
+					</spirit:wireTypeDefs>
+				</spirit:wire>
+			</spirit:port>
 			<spirit:port>
 				<spirit:name>s_axi_lite_awready</spirit:name>
 				<spirit:wire>
@@ -1790,7 +1880,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REGSIZE&apos;)) - 1)">4</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REG_WIDTH&apos;)) - 1)">6</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -1903,7 +1993,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REGSIZE&apos;)) - 1)">4</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REG_WIDTH&apos;)) - 1)">6</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -2191,7 +2281,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEMSIZE&apos;)) - 1)">9</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEM_WIDTH&apos;)) - 1)">11</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -2472,7 +2562,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEMSIZE&apos;)) - 1)">9</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEM_WIDTH&apos;)) - 1)">11</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -2754,7 +2844,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REGSIZE&apos;)) - 1)">4</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REG_WIDTH&apos;)) - 1)">6</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -2888,7 +2978,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REGSIZE&apos;)) - 1)">4</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REG_WIDTH&apos;)) - 1)">6</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -3178,7 +3268,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEMSIZE&apos;)) - 1)">9</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEM_WIDTH&apos;)) - 1)">11</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -3527,7 +3617,7 @@
 					<spirit:vector>
 						<spirit:left spirit:format="long"
 								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEMSIZE&apos;)) - 1)">9</spirit:left>
+								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEM_WIDTH&apos;)) - 1)">11</spirit:left>
 						<spirit:right spirit:format="long">0</spirit:right>
 					</spirit:vector>
 					<spirit:wireTypeDefs>
@@ -4230,6 +4320,30 @@
 						spirit:resolve="generated"
 						spirit:id="MODELPARAM_VALUE.BUSER_WIDTH">0</spirit:value>
 			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="integer">
+				<spirit:name>LSB</spirit:name>
+				<spirit:displayName>Lsb</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="dependent"
+						spirit:id="MODELPARAM_VALUE.LSB"
+						spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.DWIDTH&apos;)) / 32) + 1)">2</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="integer">
+				<spirit:name>REG_WIDTH</spirit:name>
+				<spirit:displayName>Reg Width</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="dependent"
+						spirit:id="MODELPARAM_VALUE.REG_WIDTH"
+						spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.REGSIZE&apos;)) + spirit:decode(id(&apos;MODELPARAM_VALUE.LSB&apos;)))">7</spirit:value>
+			</spirit:modelParameter>
+			<spirit:modelParameter spirit:dataType="integer">
+				<spirit:name>MEM_WIDTH</spirit:name>
+				<spirit:displayName>Mem Width</spirit:displayName>
+				<spirit:value spirit:format="long"
+						spirit:resolve="dependent"
+						spirit:id="MODELPARAM_VALUE.MEM_WIDTH"
+						spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.MEMSIZE&apos;)) + spirit:decode(id(&apos;MODELPARAM_VALUE.LSB&apos;)))">12</spirit:value>
+			</spirit:modelParameter>
 		</spirit:modelParameters>
 	</spirit:model>
 	<spirit:choices>
@@ -4274,7 +4388,7 @@
 			<spirit:file>
 				<spirit:name>axi_top.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
-				<spirit:userFileType>CHECKSUM_8110c85c</spirit:userFileType>
+				<spirit:userFileType>CHECKSUM_b94c573a</spirit:userFileType>
 			</spirit:file>
 		</spirit:fileSet>
 		<spirit:fileSet>
@@ -4325,7 +4439,7 @@
 			<spirit:file>
 				<spirit:name>xgui/axi_top_v1_0.tcl</spirit:name>
 				<spirit:fileType>tclSource</spirit:fileType>
-				<spirit:userFileType>CHECKSUM_feac07ec</spirit:userFileType>
+				<spirit:userFileType>CHECKSUM_df87577d</spirit:userFileType>
 				<spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
 			</spirit:file>
 		</spirit:fileSet>
@@ -4415,6 +4529,27 @@
 					spirit:id="PARAM_VALUE.Component_Name"
 					spirit:order="1">axi_top_v1_0</spirit:value>
 		</spirit:parameter>
+		<spirit:parameter>
+			<spirit:name>LSB</spirit:name>
+			<spirit:displayName>Lsb</spirit:displayName>
+			<spirit:value spirit:format="long"
+					spirit:resolve="user"
+					spirit:id="PARAM_VALUE.LSB">2</spirit:value>
+		</spirit:parameter>
+		<spirit:parameter>
+			<spirit:name>REG_WIDTH</spirit:name>
+			<spirit:displayName>Reg Width</spirit:displayName>
+			<spirit:value spirit:format="long"
+					spirit:resolve="user"
+					spirit:id="PARAM_VALUE.REG_WIDTH">7</spirit:value>
+		</spirit:parameter>
+		<spirit:parameter>
+			<spirit:name>MEM_WIDTH</spirit:name>
+			<spirit:displayName>Mem Width</spirit:displayName>
+			<spirit:value spirit:format="long"
+					spirit:resolve="user"
+					spirit:id="PARAM_VALUE.MEM_WIDTH">12</spirit:value>
+		</spirit:parameter>
 	</spirit:parameters>
 	<spirit:vendorExtensions>
 		<xilinx:coreExtensions>
@@ -4426,8 +4561,8 @@
 			</xilinx:taxonomies>
 			<xilinx:displayName>axi_top_v1_0</xilinx:displayName>
 			<xilinx:definitionSource>package_project</xilinx:definitionSource>
-			<xilinx:coreRevision>3</xilinx:coreRevision>
-			<xilinx:coreCreationDateTime>2017-05-20T11:39:03Z</xilinx:coreCreationDateTime>
+			<xilinx:coreRevision>6</xilinx:coreRevision>
+			<xilinx:coreCreationDateTime>2017-05-21T12:47:46Z</xilinx:coreCreationDateTime>
 			<xilinx:tags>
 				<xilinx:tag xilinx:name="user.org:user:axi_top:1.0_ARCHIVE_LOCATION">/ram/home/takau/axi/dist</xilinx:tag>
 			</xilinx:tags>
@@ -4441,13 +4576,13 @@
 			<xilinx:checksum xilinx:scope="memoryMaps"
 					xilinx:value="9f343cc7"/>
 			<xilinx:checksum xilinx:scope="fileGroups"
-					xilinx:value="2eab693a"/>
+					xilinx:value="ff8d26e2"/>
 			<xilinx:checksum xilinx:scope="ports"
-					xilinx:value="46c67209"/>
+					xilinx:value="c676c5a7"/>
 			<xilinx:checksum xilinx:scope="hdlParameters"
-					xilinx:value="3a7ceb53"/>
+					xilinx:value="f0292757"/>
 			<xilinx:checksum xilinx:scope="parameters"
-					xilinx:value="02734520"/>
+					xilinx:value="5b7bed3d"/>
 		</xilinx:packagingInfo>
 	</spirit:vendorExtensions>
 </spirit:component>

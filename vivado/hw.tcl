@@ -5,6 +5,16 @@
 set origin_dir .
 set proj_name zedboard
 
+open_project /ram/home/takau/axi/vivado/ip/ip.xpr
+ipx::open_ipxact_file /ram/home/takau/axi/dist/component.xml
+ipx::merge_project_changes hdl_parameters [ipx::current_core]
+set_property core_revision 6 [ipx::current_core]
+ipx::create_xgui_files [ipx::current_core]
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+update_ip_catalog -rebuild -repo_path /ram/home/takau/axi/dist
+close_project
+
 open_project $origin_dir/$proj_name/$proj_name.xpr
 
 open_bd_design \

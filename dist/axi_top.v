@@ -47,7 +47,8 @@
 
 module axi_top(/*AUTOARG*/
    // Outputs
-   s_axi_lite_awready, s_axi_lite_wready, s_axi_lite_bresp,
+   probe1, probe0, err_m_axi_lite, err_m_axi, ack_m_axi_lite,
+   ack_m_axi, s_axi_lite_awready, s_axi_lite_wready, s_axi_lite_bresp,
    s_axi_lite_bvalid, s_axi_lite_arready, s_axi_lite_rdata,
    s_axi_lite_rresp, s_axi_lite_rvalid, m_axi_lite_awaddr,
    m_axi_lite_awprot, m_axi_lite_awvalid, m_axi_lite_wdata,
@@ -93,14 +94,14 @@ module axi_top(/*AUTOARG*/
   /*AUTOINPUT*/
   input                 s_axi_lite_aclk;
   input                 s_axi_lite_aresetn;
-  input [REGSIZE-1:0]   s_axi_lite_awaddr;
+  input [REG_WIDTH-1:0] s_axi_lite_awaddr;
   input [2:0]           s_axi_lite_awprot;
   input                 s_axi_lite_awvalid;
   input [DWIDTH-1:0]    s_axi_lite_wdata;
   input [DWIDTH/8-1:0]  s_axi_lite_wstrb;
   input                 s_axi_lite_wvalid;
   input                 s_axi_lite_bready;
-  input [REGSIZE-1:0]   s_axi_lite_araddr;
+  input [REG_WIDTH-1:0] s_axi_lite_araddr;
   input [2:0]           s_axi_lite_arprot;
   input                 s_axi_lite_arvalid;
   input                 s_axi_lite_rready;
@@ -119,7 +120,7 @@ module axi_top(/*AUTOARG*/
   input                     s_axi_aclk;
   input                     s_axi_aresetn;
   input [ID_WIDTH-1:0]      s_axi_awid;
-  input [MEMSIZE-1:0]       s_axi_awaddr;
+  input [MEM_WIDTH-1:0]     s_axi_awaddr;
   input [7:0]               s_axi_awlen;
   input [2:0]               s_axi_awsize;
   input [1:0]               s_axi_awburst;
@@ -137,7 +138,7 @@ module axi_top(/*AUTOARG*/
   input                     s_axi_wvalid;
   input                     s_axi_bready;
   input [ID_WIDTH-1:0]      s_axi_arid;
-  input [MEMSIZE-1:0]       s_axi_araddr;
+  input [MEM_WIDTH-1:0]     s_axi_araddr;
   input [7:0]               s_axi_arlen;
   input [2:0]               s_axi_arsize;
   input [1:0]               s_axi_arburst;
@@ -178,6 +179,14 @@ module axi_top(/*AUTOARG*/
   input m_axi_stream_tready;
 
   /*AUTOOUTPUT*/
+  // Beginning of automatic outputs (from unused autoinst outputs)
+  output		ack_m_axi;		// From m_axi_inst of m_axi.v
+  output		ack_m_axi_lite;		// From m_axi_lite_inst of m_axi_lite.v
+  output		err_m_axi;		// From m_axi_inst of m_axi.v
+  output		err_m_axi_lite;		// From m_axi_lite_inst of m_axi_lite.v
+  output		probe0;			// From m_axi_lite_inst of m_axi_lite.v
+  output		probe1;			// From m_axi_inst of m_axi.v
+  // End of automatics
   output              s_axi_lite_awready;
   output              s_axi_lite_wready;
   output [1:0]        s_axi_lite_bresp;
@@ -187,17 +196,17 @@ module axi_top(/*AUTOARG*/
   output [1:0]        s_axi_lite_rresp;
   output              s_axi_lite_rvalid;
 
-  output [REGSIZE-1:0]  m_axi_lite_awaddr;
-  output [2:0]          m_axi_lite_awprot;
-  output                m_axi_lite_awvalid;
-  output [DWIDTH-1:0]   m_axi_lite_wdata;
-  output [DWIDTH/8-1:0] m_axi_lite_wstrb;
-  output                m_axi_lite_wvalid;
-  output                m_axi_lite_bready;
-  output [REGSIZE-1:0]  m_axi_lite_araddr;
-  output [2:0]          m_axi_lite_arprot;
-  output                m_axi_lite_arvalid;
-  output                m_axi_lite_rready;
+  output [REG_WIDTH-1:0]  m_axi_lite_awaddr;
+  output [2:0]            m_axi_lite_awprot;
+  output                  m_axi_lite_awvalid;
+  output [DWIDTH-1:0]     m_axi_lite_wdata;
+  output [DWIDTH/8-1:0]   m_axi_lite_wstrb;
+  output                  m_axi_lite_wvalid;
+  output                  m_axi_lite_bready;
+  output [REG_WIDTH-1:0]  m_axi_lite_araddr;
+  output [2:0]            m_axi_lite_arprot;
+  output                  m_axi_lite_arvalid;
+  output                  m_axi_lite_rready;
 
   output                    s_axi_awready;
   output                    s_axi_wready;
@@ -214,7 +223,7 @@ module axi_top(/*AUTOARG*/
   output                    s_axi_rvalid;
 
   output [ID_WIDTH-1:0]     m_axi_awid;
-  output [MEMSIZE-1:0]      m_axi_awaddr;
+  output [MEM_WIDTH-1:0]    m_axi_awaddr;
   output [7:0]              m_axi_awlen;
   output [2:0]              m_axi_awsize;
   output [1:0]              m_axi_awburst;
@@ -231,7 +240,7 @@ module axi_top(/*AUTOARG*/
   output                    m_axi_wvalid;
   output                    m_axi_bready;
   output [ID_WIDTH-1:0]     m_axi_arid;
-  output [MEMSIZE-1:0]      m_axi_araddr;
+  output [MEM_WIDTH-1:0]    m_axi_araddr;
   output [7:0]              m_axi_arlen;
   output [2:0]              m_axi_arsize;
   output [1:0]              m_axi_arburst;
@@ -251,6 +260,13 @@ module axi_top(/*AUTOARG*/
   output                m_axi_stream_tlast;
 
   /*AUTOWIRE*/
+  wire req_m_axi_lite;
+  wire ack_m_axi_lite;
+  wire err_m_axi_lite;
+  wire req_m_axi;
+  wire ack_m_axi;
+  wire err_m_axi;
+
   wire [DWIDTH-1:0]   port0;
   wire [DWIDTH-1:0]   port1;
   wire [DWIDTH-1:0]   port2;
@@ -289,21 +305,46 @@ module axi_top(/*AUTOARG*/
   wire [DWIDTH-1:0]   mem_rdata;
   wire                buf_re;
   wire [DWIDTH-1:0]   buf_data;
+  wire [DWIDTH-1:0]   probe0;
+  wire [DWIDTH-1:0]   probe1;
 
   /*AUTOREG*/
 
-  assign port16 = port2;
-  assign port17 = port3;
-  assign port18 = port4;
-  assign port19 = port5;
-  assign port20 = port6;
-  assign port21 = port7;
-  assign port22 = port8;
-  assign port23 = port9;
-  assign port24 = port10;
-  assign port25 = port11;
-  assign port26 = port12 + port13;
-  assign port27 = port14 + port15;
+  // Input ports
+  assign port0  = req_m_axi_lite;
+  assign port1  = req_m_axi;
+  assign port2  = 0;
+  assign port3  = 0;
+  assign port4  = 0;
+  assign port5  = 0;
+  assign port6  = 0;
+  assign port7  = 0;
+  assign port8  = 0;
+  assign port9  = 0;
+  assign port10 = 0;
+  assign port11 = 0;
+  assign port12 = 0;
+  assign port13 = 0;
+  assign port14 = 0;
+  assign port15 = 0;
+
+  // Output ports
+  assign port31 = ack_m_axi_lite;
+  assign port30 = err_m_axi_lite;
+  assign port29 = ack_m_axi;
+  assign port28 = err_m_axi;
+  assign port27 = m_axi_lite_awvalid;
+  assign port26 = m_axi_lite_awready;
+  assign port25 = m_axi_lite_wvalid;
+  assign port24 = m_axi_lite_wready;
+  assign port23 = m_axi_lite_bvalid;
+  assign port22 = m_axi_lite_bready;
+  assign port21 = m_axi_lite_arvalid;
+  assign port20 = m_axi_lite_arready;
+  assign port19 = m_axi_lite_rvalid;
+  assign port18 = m_axi_lite_rready;
+  assign port17 = probe0;
+  assign port16 = probe1;
 
   /* s_axi_lite AUTO_TEMPLATE (
       .clk      (s_axi_lite_aclk),
@@ -386,9 +427,10 @@ module axi_top(/*AUTOARG*/
 			     .port16		(port16[DWIDTH-1:0]));
 
   /* m_axi_lite AUTO_TEMPLATE (
-      .req      (port0),
-      .ack      (port31),
-      .err      (port30),
+      .probe    (probe0),
+      .req      (req_m_axi_lite),
+      .ack      (ack_m_axi_lite),
+      .err      (err_m_axi_lite),
       .clk      (m_axi_lite_aclk),
       .xrst     (m_axi_lite_aresetn),
       .awaddr   (m_axi_lite_awaddr),
@@ -413,8 +455,9 @@ module axi_top(/*AUTOARG*/
   ); */
   m_axi_lite m_axi_lite_inst(/*AUTOINST*/
 			     // Outputs
-			     .ack		(port31),	 // Templated
-			     .err		(port30),	 // Templated
+			     .ack		(ack_m_axi_lite), // Templated
+			     .err		(err_m_axi_lite), // Templated
+			     .probe		(probe0),	 // Templated
 			     .awvalid		(m_axi_lite_awvalid), // Templated
 			     .awaddr		(m_axi_lite_awaddr), // Templated
 			     .awprot		(m_axi_lite_awprot), // Templated
@@ -429,7 +472,7 @@ module axi_top(/*AUTOARG*/
 			     // Inputs
 			     .clk		(m_axi_lite_aclk), // Templated
 			     .xrst		(m_axi_lite_aresetn), // Templated
-			     .req		(port0),	 // Templated
+			     .req		(req_m_axi_lite), // Templated
 			     .awready		(m_axi_lite_awready), // Templated
 			     .wready		(m_axi_lite_wready), // Templated
 			     .bresp		(m_axi_lite_bresp), // Templated
@@ -542,9 +585,10 @@ module axi_top(/*AUTOARG*/
 		   .mem_rdata		(mem_rdata[DWIDTH-1:0]));
 
   /* m_axi AUTO_TEMPLATE (
-      .req      (port1),
-      .ack      (port29),
-      .err      (port28),
+      .probe    (probe1),
+      .req      (req_m_axi),
+      .ack      (ack_m_axi),
+      .err      (err_m_axi),
       .clk      (m_axi_aclk),
       .xrst     (m_axi_aresetn),
       .awid     (m_axi_awid),
@@ -592,8 +636,10 @@ module axi_top(/*AUTOARG*/
   ); */
   m_axi m_axi_inst(/*AUTOINST*/
 		   // Outputs
-		   .ack			(port29),		 // Templated
-		   .err			(port28),		 // Templated
+		   .ack			(ack_m_axi),		 // Templated
+		   .err			(err_m_axi),		 // Templated
+		   .probe		(probe1),		 // Templated
+		   .awvalid		(m_axi_awvalid),	 // Templated
 		   .awid		(m_axi_awid),		 // Templated
 		   .awaddr		(m_axi_awaddr),		 // Templated
 		   .awlen		(m_axi_awlen),		 // Templated
@@ -604,13 +650,13 @@ module axi_top(/*AUTOARG*/
 		   .awprot		(m_axi_awprot),		 // Templated
 		   .awqos		(m_axi_awqos),		 // Templated
 		   .awuser		(m_axi_awuser),		 // Templated
-		   .awvalid		(m_axi_awvalid),	 // Templated
+		   .wvalid		(m_axi_wvalid),		 // Templated
 		   .wdata		(m_axi_wdata),		 // Templated
 		   .wstrb		(m_axi_wstrb),		 // Templated
 		   .wlast		(m_axi_wlast),		 // Templated
 		   .wuser		(m_axi_wuser),		 // Templated
-		   .wvalid		(m_axi_wvalid),		 // Templated
 		   .bready		(m_axi_bready),		 // Templated
+		   .arvalid		(m_axi_arvalid),	 // Templated
 		   .arid		(m_axi_arid),		 // Templated
 		   .araddr		(m_axi_araddr),		 // Templated
 		   .arlen		(m_axi_arlen),		 // Templated
@@ -621,12 +667,11 @@ module axi_top(/*AUTOARG*/
 		   .arprot		(m_axi_arprot),		 // Templated
 		   .arqos		(m_axi_arqos),		 // Templated
 		   .aruser		(m_axi_aruser),		 // Templated
-		   .arvalid		(m_axi_arvalid),	 // Templated
 		   .rready		(m_axi_rready),		 // Templated
 		   // Inputs
 		   .clk			(m_axi_aclk),		 // Templated
 		   .xrst		(m_axi_aresetn),	 // Templated
-		   .req			(port1),		 // Templated
+		   .req			(req_m_axi),		 // Templated
 		   .awready		(m_axi_awready),	 // Templated
 		   .wready		(m_axi_wready),		 // Templated
 		   .bid			(m_axi_bid),		 // Templated

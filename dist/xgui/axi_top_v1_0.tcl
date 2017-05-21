@@ -72,6 +72,15 @@ proc validate_PARAM_VALUE.ID_WIDTH { PARAM_VALUE.ID_WIDTH } {
 	return true
 }
 
+proc update_PARAM_VALUE.LSB { PARAM_VALUE.LSB } {
+	# Procedure called to update LSB when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.LSB { PARAM_VALUE.LSB } {
+	# Procedure called to validate LSB
+	return true
+}
+
 proc update_PARAM_VALUE.MEMSIZE { PARAM_VALUE.MEMSIZE } {
 	# Procedure called to update MEMSIZE when any of the dependent parameters in the arguments change
 }
@@ -81,12 +90,30 @@ proc validate_PARAM_VALUE.MEMSIZE { PARAM_VALUE.MEMSIZE } {
 	return true
 }
 
+proc update_PARAM_VALUE.MEM_WIDTH { PARAM_VALUE.MEM_WIDTH } {
+	# Procedure called to update MEM_WIDTH when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.MEM_WIDTH { PARAM_VALUE.MEM_WIDTH } {
+	# Procedure called to validate MEM_WIDTH
+	return true
+}
+
 proc update_PARAM_VALUE.REGSIZE { PARAM_VALUE.REGSIZE } {
 	# Procedure called to update REGSIZE when any of the dependent parameters in the arguments change
 }
 
 proc validate_PARAM_VALUE.REGSIZE { PARAM_VALUE.REGSIZE } {
 	# Procedure called to validate REGSIZE
+	return true
+}
+
+proc update_PARAM_VALUE.REG_WIDTH { PARAM_VALUE.REG_WIDTH } {
+	# Procedure called to update REG_WIDTH when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.REG_WIDTH { PARAM_VALUE.REG_WIDTH } {
+	# Procedure called to validate REG_WIDTH
 	return true
 }
 
@@ -171,5 +198,20 @@ proc update_MODELPARAM_VALUE.RUSER_WIDTH { MODELPARAM_VALUE.RUSER_WIDTH PARAM_VA
 proc update_MODELPARAM_VALUE.BUSER_WIDTH { MODELPARAM_VALUE.BUSER_WIDTH PARAM_VALUE.BUSER_WIDTH } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.BUSER_WIDTH}] ${MODELPARAM_VALUE.BUSER_WIDTH}
+}
+
+proc update_MODELPARAM_VALUE.LSB { MODELPARAM_VALUE.LSB PARAM_VALUE.LSB } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.LSB}] ${MODELPARAM_VALUE.LSB}
+}
+
+proc update_MODELPARAM_VALUE.REG_WIDTH { MODELPARAM_VALUE.REG_WIDTH PARAM_VALUE.REG_WIDTH } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.REG_WIDTH}] ${MODELPARAM_VALUE.REG_WIDTH}
+}
+
+proc update_MODELPARAM_VALUE.MEM_WIDTH { MODELPARAM_VALUE.MEM_WIDTH PARAM_VALUE.MEM_WIDTH } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.MEM_WIDTH}] ${MODELPARAM_VALUE.MEM_WIDTH}
 }
 

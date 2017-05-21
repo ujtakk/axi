@@ -14,14 +14,10 @@ module s_axi_lite(/*AUTOARG*/
    );
 `include "parameters.vh"
 
-  parameter AWIDTH = REGSIZE + DWIDTH/32 + 1;
-
-  localparam LSB = DWIDTH/32 + 1;
-
   /*AUTOINPUT*/
   input                 clk;
   input                 xrst;
-  input [AWIDTH-1:0]    awaddr;
+  input [REG_WIDTH-1:0] awaddr;
   input [2:0]           awprot;
   input                 awvalid;
   input [DWIDTH-1:0]    wdata;
@@ -29,8 +25,8 @@ module s_axi_lite(/*AUTOARG*/
   input                 wvalid;
   input                 bready;
   input                 arvalid;
-  input [AWIDTH-1:0]    araddr;
-  input [1:0]           arprot;
+  input [REG_WIDTH-1:0] araddr;
+  input [2:0]           arprot;
   input                 rready;
   input [DWIDTH-1:0]    port31;
   input [DWIDTH-1:0]    port30;
@@ -80,48 +76,48 @@ module s_axi_lite(/*AUTOARG*/
   wire port_re;
 
   /*AUTOREG*/
-  reg               r_awready;
-  reg [AWIDTH-1:0]  r_awaddr;
-  reg               r_wready;
-  reg               r_bvalid;
-  reg [1:0]         r_bresp;
-  reg               r_arready;
-  reg [AWIDTH-1:0]  r_araddr;
-  reg               r_rvalid;
-  reg [DWIDTH-1:0]  r_rdata;
-  reg [1:0]         r_rresp;
-  reg [DWIDTH-1:0]  r_port0;
-  reg [DWIDTH-1:0]  r_port1;
-  reg [DWIDTH-1:0]  r_port2;
-  reg [DWIDTH-1:0]  r_port3;
-  reg [DWIDTH-1:0]  r_port4;
-  reg [DWIDTH-1:0]  r_port5;
-  reg [DWIDTH-1:0]  r_port6;
-  reg [DWIDTH-1:0]  r_port7;
-  reg [DWIDTH-1:0]  r_port8;
-  reg [DWIDTH-1:0]  r_port9;
-  reg [DWIDTH-1:0]  r_port10;
-  reg [DWIDTH-1:0]  r_port11;
-  reg [DWIDTH-1:0]  r_port12;
-  reg [DWIDTH-1:0]  r_port13;
-  reg [DWIDTH-1:0]  r_port14;
-  reg [DWIDTH-1:0]  r_port15;
-  reg [DWIDTH-1:0]  r_port16;
-  reg [DWIDTH-1:0]  r_port17;
-  reg [DWIDTH-1:0]  r_port18;
-  reg [DWIDTH-1:0]  r_port19;
-  reg [DWIDTH-1:0]  r_port20;
-  reg [DWIDTH-1:0]  r_port21;
-  reg [DWIDTH-1:0]  r_port22;
-  reg [DWIDTH-1:0]  r_port23;
-  reg [DWIDTH-1:0]  r_port24;
-  reg [DWIDTH-1:0]  r_port25;
-  reg [DWIDTH-1:0]  r_port26;
-  reg [DWIDTH-1:0]  r_port27;
-  reg [DWIDTH-1:0]  r_port28;
-  reg [DWIDTH-1:0]  r_port29;
-  reg [DWIDTH-1:0]  r_port30;
-  reg [DWIDTH-1:0]  r_port31;
+  reg                 r_awready;
+  reg [REG_WIDTH-1:0] r_awaddr;
+  reg                 r_wready;
+  reg                 r_bvalid;
+  reg [1:0]           r_bresp;
+  reg                 r_arready;
+  reg [REG_WIDTH-1:0] r_araddr;
+  reg                 r_rvalid;
+  reg [DWIDTH-1:0]    r_rdata;
+  reg [1:0]           r_rresp;
+  reg [DWIDTH-1:0]    r_port0;
+  reg [DWIDTH-1:0]    r_port1;
+  reg [DWIDTH-1:0]    r_port2;
+  reg [DWIDTH-1:0]    r_port3;
+  reg [DWIDTH-1:0]    r_port4;
+  reg [DWIDTH-1:0]    r_port5;
+  reg [DWIDTH-1:0]    r_port6;
+  reg [DWIDTH-1:0]    r_port7;
+  reg [DWIDTH-1:0]    r_port8;
+  reg [DWIDTH-1:0]    r_port9;
+  reg [DWIDTH-1:0]    r_port10;
+  reg [DWIDTH-1:0]    r_port11;
+  reg [DWIDTH-1:0]    r_port12;
+  reg [DWIDTH-1:0]    r_port13;
+  reg [DWIDTH-1:0]    r_port14;
+  reg [DWIDTH-1:0]    r_port15;
+  reg [DWIDTH-1:0]    r_port16;
+  reg [DWIDTH-1:0]    r_port17;
+  reg [DWIDTH-1:0]    r_port18;
+  reg [DWIDTH-1:0]    r_port19;
+  reg [DWIDTH-1:0]    r_port20;
+  reg [DWIDTH-1:0]    r_port21;
+  reg [DWIDTH-1:0]    r_port22;
+  reg [DWIDTH-1:0]    r_port23;
+  reg [DWIDTH-1:0]    r_port24;
+  reg [DWIDTH-1:0]    r_port25;
+  reg [DWIDTH-1:0]    r_port26;
+  reg [DWIDTH-1:0]    r_port27;
+  reg [DWIDTH-1:0]    r_port28;
+  reg [DWIDTH-1:0]    r_port29;
+  reg [DWIDTH-1:0]    r_port30;
+  reg [DWIDTH-1:0]    r_port31;
 
 //==========================================================
 // write address control
@@ -227,7 +223,7 @@ module s_axi_lite(/*AUTOARG*/
       r_rdata <= 0;
     else
       if (port_re)
-        case (r_araddr[REGSIZE-1+LSB:LSB])
+        case (r_araddr[REG_WIDTH-1:LSB])
           0:  r_rdata <= r_port0;
           1:  r_rdata <= r_port1;
           2:  r_rdata <= r_port2;
@@ -334,133 +330,133 @@ module s_axi_lite(/*AUTOARG*/
     end
     else
       if (port_we)
-        case (r_awaddr[REGSIZE-1+LSB:LSB])
+        case (r_awaddr[REG_WIDTH-1:LSB])
           0:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port0[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           1:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port1[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           2:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port2[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           3:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port3[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           4:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port4[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           5:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port5[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           6:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port6[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           7:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port7[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           8:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port8[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           9:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port9[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           10:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port10[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           11:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port11[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           12:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port12[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           13:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port13[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           14:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port14[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           15:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port15[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           16:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port16[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           17:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port17[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           18:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port18[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           19:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port19[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           20:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port20[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           21:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port21[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           22:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port22[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           23:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port23[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           24:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port24[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           25:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port25[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           26:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port26[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           27:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port27[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           28:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port28[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           29:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port29[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           30:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port30[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           31:
-            for (byte_idx = 0; byte_idx < DWIDTH/8-1; byte_idx = byte_idx + 1)
+            for (byte_idx = 0; byte_idx < DWIDTH/8; byte_idx = byte_idx + 1)
               if (wstrb[byte_idx])
                 r_port31[byte_idx*8 +: 8] <= wdata[byte_idx*8 +: 8];
           default: begin

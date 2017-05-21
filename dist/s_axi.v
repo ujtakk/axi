@@ -14,16 +14,13 @@ module s_axi(/*AUTOARG*/
    );
 `include "parameters.vh"
 
-  parameter AWIDTH = MEMSIZE + DWIDTH/32 + 1;
-
-  localparam LSB = DWIDTH/32 + 1;
   localparam NUM_MEM = 1;
 
   /*AUTOINPUT*/
   input                     clk;
   input                     xrst;
   input [ID_WIDTH-1:0]      awid;
-  input [AWIDTH-1:0]        awaddr;
+  input [MEM_WIDTH-1:0]     awaddr;
   input [7:0]               awlen;
   input [2:0]               awsize;
   input [1:0]               awburst;
@@ -41,7 +38,7 @@ module s_axi(/*AUTOARG*/
   input                     wvalid;
   input                     bready;
   input [ID_WIDTH-1:0]      arid;
-  input [AWIDTH-1:0]        araddr;
+  input [MEM_WIDTH-1:0]     araddr;
   input [7:0]               arlen;
   input [2:0]               arsize;
   input [1:0]               arburst;
@@ -81,7 +78,7 @@ module s_axi(/*AUTOARG*/
 
   /*AUTOREG*/
   reg                   r_awready;
-  reg [AWIDTH-1:0]      r_awaddr;
+  reg [MEM_WIDTH-1:0]   r_awaddr;
   reg [7:0]             r_awlen;
   reg [7:0]             r_awlen_cnt;
   reg [1:0]             r_awburst;
@@ -91,7 +88,7 @@ module s_axi(/*AUTOARG*/
   reg [BUSER_WIDTH-1:0] r_buser;
   reg                   r_bvalid;
   reg                   r_arready;
-  reg [AWIDTH-1:0]      r_araddr;
+  reg [MEM_WIDTH-1:0]   r_araddr;
   reg [7:0]             r_arlen;
   reg [7:0]             r_arlen_cnt;
   reg [1:0]             r_arburst;
@@ -131,14 +128,14 @@ module s_axi(/*AUTOARG*/
       r_awaddr <= 0;
     else
       if (!r_awready && awvalid && !r_awv_issued)
-        r_awaddr <= awaddr[AWIDTH-1:0];
+        r_awaddr <= awaddr[MEM_WIDTH-1:0];
       else if (r_awlen_cnt <= r_awlen && r_wready && wvalid)
         case (r_awburst)
           2'b00:
             r_awaddr <= r_awaddr;
 
           2'b01: begin
-            r_awaddr[AWIDTH-1:LSB] <= r_awaddr[AWIDTH-1:LSB] + 1;
+            r_awaddr[MEM_WIDTH-1:LSB] <= r_awaddr[MEM_WIDTH-1:LSB] + 1;
             r_awaddr[LSB-1:0]      <= {LSB{1'b0}};
           end
 
@@ -146,12 +143,12 @@ module s_axi(/*AUTOARG*/
             if (aw_wrap_en)
               r_awaddr <= r_awaddr - aw_wrap_size;
             else begin
-              r_awaddr[AWIDTH-1:LSB] <= r_awaddr[AWIDTH-1:LSB] + 1;
+              r_awaddr[MEM_WIDTH-1:LSB] <= r_awaddr[MEM_WIDTH-1:LSB] + 1;
               r_awaddr[LSB-1:0]      <= {LSB{1'b0}};
             end
 
           default:
-            r_awaddr <= r_awaddr[AWIDTH-1:LSB] + 1;
+            r_awaddr <= r_awaddr[MEM_WIDTH-1:LSB] + 1;
         endcase
 
   always @(posedge clk)
@@ -246,24 +243,24 @@ module s_axi(/*AUTOARG*/
       r_araddr <= 0;
     else
       if (!r_arready && arvalid & !r_arv_issued)
-        r_araddr <= araddr[AWIDTH-1:0];
+        r_araddr <= araddr[MEM_WIDTH-1:0];
       else if (r_arlen_cnt <= r_arlen && r_rvalid && rready)
         case (r_arburst)
           2'b00:
             r_araddr <= r_araddr;
           2'b01: begin
-            r_araddr[AWIDTH-1:LSB] <= r_araddr[AWIDTH-1:LSB] + 1;
+            r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
             r_araddr[LSB-1:0]      <= {LSB{1'b0}};
           end
           2'b10:
             if (ar_wrap_en)
               r_araddr <= r_araddr - ar_wrap_size;
             else begin
-              r_araddr[AWIDTH-1:LSB] <= r_araddr[AWIDTH-1:LSB] + 1;
+              r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
               r_araddr[LSB-1:0]      <= {LSB{1'b0}};
             end
           default:
-            r_araddr <= r_araddr[AWIDTH-1:LSB] + 1;
+            r_araddr <= r_araddr[MEM_WIDTH-1:LSB] + 1;
         endcase
 
   always @(posedge clk)
