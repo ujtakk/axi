@@ -6,6 +6,7 @@ work
 
 vivado/ip
 vivado/zedboard
+vivado/zybo
 
 *.v
 *.vh

@@ -124,14 +124,15 @@ int main()
 
   do {
     printf("\033[2J");
+
     printf("time: %d\n", t);
     print_port();
     print_mem(&mem, 0x0, 0x0, 0x0);
     print_buf(0x0);
     sleep(2);
 
-    // n = getchar();
-    t++;
+    n = getchar();
+    t = t + 1;
   } while (n != EOF);
 
   printf("---------- end ----------\n");
