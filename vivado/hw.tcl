@@ -7,13 +7,26 @@ set proj_name zedboard
 
 open_project $origin_dir/$proj_name/$proj_name.xpr
 
-# open_bd_design \
-#   $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd
-# update_ip_catalog -rebuild -scan_changes
-# report_ip
-# upgrade_ip
-# export_ip_user_files
-# generate_target all
+open_bd_design \
+  $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd
+update_ip_catalog -rebuild -scan_changes
+upgrade_ip -vlnv user.org:user:axi_top:1.0 [get_ips design_1_axi_top_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips design_1_axi_top_0_0] -no_script -sync -force -quiet
+generate_target all [get_files $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd]
+export_ip_user_files -of_objects [get_files $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd] -no_script -sync -force -quiet
+export_simulation -of_objects \
+  [get_files $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd] \
+  -directory $origin_dir/$proj_name/$proj_name.ip_user_files/sim_scripts \
+  -ip_user_files_dir $origin_dir/$proj_name/$proj_name.ip_user_files \
+  -ipstatic_source_dir $origin_dir/$proj_name/$proj_name.ip_user_files/ipstatic \
+  -lib_map_path [list \
+    {modelsim=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/modelsim} \
+    {questa=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/questa} \
+    {ies=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/ies} \
+    {vcs=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/vcs} \
+    {riviera=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/riviera}\
+  ] \
+  -use_ip_compiled_libs -force -quiet
 
 reset_run   synth_1
 launch_runs synth_1
