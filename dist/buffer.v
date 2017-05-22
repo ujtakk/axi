@@ -30,7 +30,7 @@ module buffer(/*AUTOARG*/
 
   assign buf_isempty = r_wptr == r_rptr;
   assign buf_isfull  = r_wptr < r_rptr ? r_wptr == r_rptr - 1
-                     : r_rptr < r_wptr ? r_wptr == WORDS - 1 && r_rptr == 0
+                     : r_wptr > r_rptr ? r_wptr == WORDS - 1 && r_rptr == 0
                      : 0;
 
   assign buf_rdata = mem[r_rptr];
