@@ -1,15 +1,16 @@
 BOARD = zedboard
+APP   = iotest
 
 .PHONY: run sw hw zybo zedboard ip all clean
 
 run:
-	cp helloworld.c ${BOARD}/${BOARD}.sdk/hello/src
-	xsct run.tcl ${BOARD}
+	cp main.c ${BOARD}/${BOARD}.sdk/${APP}/src
+	xsct run.tcl ${BOARD} ${APP}
 
 all: clean ip ${BOARD} hw sw run
 
 sw:
-	xsct sw.tcl ${BOARD}
+	xsct sw.tcl ${BOARD} ${APP}
 
 hw:
 	vivado -nojournal -nolog -mode batch -source hw.tcl -tclargs ${BOARD}

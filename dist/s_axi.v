@@ -338,7 +338,7 @@ module s_axi(/*AUTOARG*/
         r_rresp <= 0;
 
 //==========================================================
-// mmap control
+// memory control
 //==========================================================
 
   assign mem_we    = r_wready && wvalid;

@@ -1614,7 +1614,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>4f70a0af</spirit:value>
+						<spirit:value>eed3eac1</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1630,7 +1630,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>4f70a0af</spirit:value>
+						<spirit:value>eed3eac1</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1645,7 +1645,7 @@
 				<spirit:parameters>
 					<spirit:parameter>
 						<spirit:name>viewChecksum</spirit:name>
-						<spirit:value>22d80c17</spirit:value>
+						<spirit:value>55ff0be9</spirit:value>
 					</spirit:parameter>
 				</spirit:parameters>
 			</spirit:view>
@@ -1665,96 +1665,6 @@
 			</spirit:view>
 		</spirit:views>
 		<spirit:ports>
-			<spirit:port>
-				<spirit:name>probe1</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:vector>
-						<spirit:left spirit:format="long"
-								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DWIDTH&apos;)) - 1)">31</spirit:left>
-						<spirit:right spirit:format="long">0</spirit:right>
-					</spirit:vector>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
-			<spirit:port>
-				<spirit:name>probe0</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:vector>
-						<spirit:left spirit:format="long"
-								spirit:resolve="dependent"
-								spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.DWIDTH&apos;)) - 1)">31</spirit:left>
-						<spirit:right spirit:format="long">0</spirit:right>
-					</spirit:vector>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
-			<spirit:port>
-				<spirit:name>err_m_axi_lite</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
-			<spirit:port>
-				<spirit:name>err_m_axi</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
-			<spirit:port>
-				<spirit:name>ack_m_axi_lite</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
-			<spirit:port>
-				<spirit:name>ack_m_axi</spirit:name>
-				<spirit:wire>
-					<spirit:direction>out</spirit:direction>
-					<spirit:wireTypeDefs>
-						<spirit:wireTypeDef>
-							<spirit:typeName>wire</spirit:typeName>
-							<spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-							<spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-						</spirit:wireTypeDef>
-					</spirit:wireTypeDefs>
-				</spirit:wire>
-			</spirit:port>
 			<spirit:port>
 				<spirit:name>s_axi_lite_awready</spirit:name>
 				<spirit:wire>
@@ -4374,11 +4284,19 @@
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
+				<spirit:name>memory.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+			</spirit:file>
+			<spirit:file>
 				<spirit:name>s_axi.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
 				<spirit:name>s_axi_lite.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>buffer.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
@@ -4388,7 +4306,7 @@
 			<spirit:file>
 				<spirit:name>axi_top.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
-				<spirit:userFileType>CHECKSUM_b94c573a</spirit:userFileType>
+				<spirit:userFileType>CHECKSUM_e199846f</spirit:userFileType>
 			</spirit:file>
 		</spirit:fileSet>
 		<spirit:fileSet>
@@ -4411,11 +4329,19 @@
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
+				<spirit:name>memory.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+			</spirit:file>
+			<spirit:file>
 				<spirit:name>s_axi.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
 				<spirit:name>s_axi_lite.v</spirit:name>
+				<spirit:fileType>verilogSource</spirit:fileType>
+			</spirit:file>
+			<spirit:file>
+				<spirit:name>buffer.v</spirit:name>
 				<spirit:fileType>verilogSource</spirit:fileType>
 			</spirit:file>
 			<spirit:file>
@@ -4561,8 +4487,8 @@
 			</xilinx:taxonomies>
 			<xilinx:displayName>axi_top_v1_0</xilinx:displayName>
 			<xilinx:definitionSource>package_project</xilinx:definitionSource>
-			<xilinx:coreRevision>6</xilinx:coreRevision>
-			<xilinx:coreCreationDateTime>2017-05-21T16:36:24Z</xilinx:coreCreationDateTime>
+			<xilinx:coreRevision>7</xilinx:coreRevision>
+			<xilinx:coreCreationDateTime>2017-05-22T12:04:49Z</xilinx:coreCreationDateTime>
 			<xilinx:tags>
 				<xilinx:tag xilinx:name="user.org:user:axi_top:1.0_ARCHIVE_LOCATION">/ram/home/takau/axi/dist</xilinx:tag>
 			</xilinx:tags>
@@ -4576,9 +4502,9 @@
 			<xilinx:checksum xilinx:scope="memoryMaps"
 					xilinx:value="9f343cc7"/>
 			<xilinx:checksum xilinx:scope="fileGroups"
-					xilinx:value="ff8d26e2"/>
+					xilinx:value="a4998e31"/>
 			<xilinx:checksum xilinx:scope="ports"
-					xilinx:value="c676c5a7"/>
+					xilinx:value="a03f55d3"/>
 			<xilinx:checksum xilinx:scope="hdlParameters"
 					xilinx:value="f0292757"/>
 			<xilinx:checksum xilinx:scope="parameters"

@@ -4,7 +4,7 @@
 
 set origin_dir .
 set proj_name [lindex $argv 0]
-set app_name hello
+set app_name  [lindex $argv 1]
 
 set sdk_ws_dir $origin_dir/$proj_name/$proj_name.sdk
 if {[file exists $sdk_ws_dir] == 0} {
@@ -38,7 +38,7 @@ proc get_processor_name {hw_project_name} {
 
 if {[file exists $sdk_ws_dir/$app_name] == 0} {
   createapp -name $app_name \
-    -app {Hello World} \
+    -app {Empty Application} \
     -proc [get_processor_name $hw_project_name] \
     -hwproject ${hw_project_name} \
     -os standalone

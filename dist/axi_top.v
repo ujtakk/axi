@@ -41,14 +41,25 @@
       "mem_addr"
       "mem_wdata"
       "mem_rdata"
+      "buf_we"
       "buf_re"
-      "buf_data"
+      "buf_wdata"
+      "buf_isempty"
+      "buf_isfull"
+      "buf_rdata"
+      "req_m_axi_lite"
+      "ack_m_axi_lite"
+      "err_m_axi_lite"
+      "req_m_axi"
+      "ack_m_axi"
+      "err_m_axi"
+      "probe0"
+      "probe1"
    ))) */
 
 module axi_top(/*AUTOARG*/
    // Outputs
-   probe1, probe0, err_m_axi_lite, err_m_axi, ack_m_axi_lite,
-   ack_m_axi, s_axi_lite_awready, s_axi_lite_wready, s_axi_lite_bresp,
+   s_axi_lite_awready, s_axi_lite_wready, s_axi_lite_bresp,
    s_axi_lite_bvalid, s_axi_lite_arready, s_axi_lite_rdata,
    s_axi_lite_rresp, s_axi_lite_rvalid, m_axi_lite_awaddr,
    m_axi_lite_awprot, m_axi_lite_awvalid, m_axi_lite_wdata,
@@ -179,14 +190,6 @@ module axi_top(/*AUTOARG*/
   input m_axi_stream_tready;
 
   /*AUTOOUTPUT*/
-  // Beginning of automatic outputs (from unused autoinst outputs)
-  output		ack_m_axi;		// From m_axi_inst of m_axi.v
-  output		ack_m_axi_lite;		// From m_axi_lite_inst of m_axi_lite.v
-  output		err_m_axi;		// From m_axi_inst of m_axi.v
-  output		err_m_axi_lite;		// From m_axi_lite_inst of m_axi_lite.v
-  output		probe0;			// From m_axi_lite_inst of m_axi_lite.v
-  output		probe1;			// From m_axi_inst of m_axi.v
-  // End of automatics
   output              s_axi_lite_awready;
   output              s_axi_lite_wready;
   output [1:0]        s_axi_lite_bresp;
@@ -299,50 +302,54 @@ module axi_top(/*AUTOARG*/
   wire [DWIDTH-1:0]   port29;
   wire [DWIDTH-1:0]   port30;
   wire [DWIDTH-1:0]   port31;
-  wire                mem_we;
-  wire [MEMSIZE-1:0]  mem_addr;
-  wire [DWIDTH-1:0]   mem_wdata;
-  wire [DWIDTH-1:0]   mem_rdata;
-  wire                buf_re;
-  wire [DWIDTH-1:0]   buf_data;
+  /*i*/ wire                mem_we;
+  /*i*/ wire [MEMSIZE-1:0]  mem_addr;
+  /*i*/ wire [DWIDTH-1:0]   mem_wdata;
+  /*o*/ wire [DWIDTH-1:0]   mem_rdata;
+  /*i*/ wire                buf_we;
+  /*i*/ wire                buf_re;
+  /*i*/ wire [DWIDTH-1:0]   buf_wdata;
+  /*o*/ wire                buf_isempty;
+  /*o*/ wire                buf_isfull;
+  /*o*/ wire [DWIDTH-1:0]   buf_rdata;
   wire [DWIDTH-1:0]   probe0;
   wire [DWIDTH-1:0]   probe1;
 
   /*AUTOREG*/
 
   // Input ports
-  assign port0  = req_m_axi_lite;
-  assign port1  = req_m_axi;
-  assign port2  = 0;
-  assign port3  = 0;
-  assign port4  = 0;
-  assign port5  = 0;
-  assign port6  = 0;
-  assign port7  = 0;
-  assign port8  = 0;
-  assign port9  = 0;
-  assign port10 = 0;
-  assign port11 = 0;
-  assign port12 = 0;
-  assign port13 = 0;
-  assign port14 = 0;
-  assign port15 = 0;
+  assign req_m_axi_lite = port0[0];
+  assign req_m_axi = port1[0];
+  assign buf_re = port2[0];
+  // assign = port3;
+  // assign = port4;
+  // assign = port5;
+  // assign = port6;
+  // assign = port7;
+  // assign = port8;
+  // assign = port9;
+  // assign = port10;
+  // assign = port11;
+  // assign = port12;
+  // assign = port13;
+  // assign = port14;
+  // assign = port15;
 
   // Output ports
   assign port31 = ack_m_axi_lite;
   assign port30 = err_m_axi_lite;
   assign port29 = ack_m_axi;
   assign port28 = err_m_axi;
-  assign port27 = m_axi_lite_awvalid;
-  assign port26 = m_axi_lite_awready;
-  assign port25 = m_axi_lite_wvalid;
-  assign port24 = m_axi_lite_wready;
-  assign port23 = m_axi_lite_bvalid;
-  assign port22 = m_axi_lite_bready;
-  assign port21 = m_axi_lite_arvalid;
-  assign port20 = m_axi_lite_arready;
-  assign port19 = m_axi_lite_rvalid;
-  assign port18 = m_axi_lite_rready;
+  assign port27 = 0;
+  assign port26 = buf_isempty;
+  assign port25 = buf_isfull;
+  assign port24 = 0;
+  assign port23 = 0;
+  assign port22 = 0;
+  assign port21 = 0;
+  assign port20 = 0;
+  assign port19 = 0;
+  assign port18 = 0;
   assign port17 = probe0;
   assign port16 = probe1;
 
@@ -584,6 +591,20 @@ module axi_top(/*AUTOARG*/
 		   .rready		(s_axi_rready),		 // Templated
 		   .mem_rdata		(mem_rdata[DWIDTH-1:0]));
 
+  /* memory AUTO_TEMPLATE (
+      .clk      (s_axi_aclk),
+      .xrst     (s_axi_aresetn),
+  ); */
+  memory memory_inst(/*AUTOINST*/
+		     // Outputs
+		     .mem_rdata		(mem_rdata[DWIDTH-1:0]),
+		     // Inputs
+		     .clk		(s_axi_aclk),		 // Templated
+		     .xrst		(s_axi_aresetn),	 // Templated
+		     .mem_we		(mem_we),
+		     .mem_addr		(mem_addr[MEMSIZE-1:0]),
+		     .mem_wdata		(mem_wdata[DWIDTH-1:0]));
+
   /* m_axi AUTO_TEMPLATE (
       .probe    (probe1),
       .req      (req_m_axi),
@@ -698,7 +719,8 @@ module axi_top(/*AUTOARG*/
   s_axi_stream s_axi_stream_inst(/*AUTOINST*/
 				 // Outputs
 				 .tready		(s_axi_stream_tready), // Templated
-				 .buf_data		(buf_data[DWIDTH-1:0]),
+				 .buf_we		(buf_we),
+				 .buf_wdata		(buf_wdata[DWIDTH-1:0]),
 				 // Inputs
 				 .clk			(s_axi_stream_aclk), // Templated
 				 .xrst			(s_axi_stream_aresetn), // Templated
@@ -706,7 +728,23 @@ module axi_top(/*AUTOARG*/
 				 .tdata			(s_axi_stream_tdata), // Templated
 				 .tstrb			(s_axi_stream_tstrb), // Templated
 				 .tlast			(s_axi_stream_tlast), // Templated
-				 .buf_re		(buf_re));
+				 .buf_isfull		(buf_isfull));
+
+  /* buffer AUTO_TEMPLATE (
+      .clk      (s_axi_stream_aclk),
+      .xrst     (s_axi_stream_aresetn),
+  ); */
+  buffer buffer_inst(/*AUTOINST*/
+		     // Outputs
+		     .buf_isempty	(buf_isempty),
+		     .buf_isfull	(buf_isfull),
+		     .buf_rdata		(buf_rdata[DWIDTH-1:0]),
+		     // Inputs
+		     .clk		(s_axi_stream_aclk),	 // Templated
+		     .xrst		(s_axi_stream_aresetn),	 // Templated
+		     .buf_we		(buf_we),
+		     .buf_re		(buf_re),
+		     .buf_wdata		(buf_wdata[DWIDTH-1:0]));
 
   /* m_axi_stream AUTO_TEMPLATE (
     .clk    (m_axi_stream_aclk),

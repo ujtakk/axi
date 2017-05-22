@@ -30,7 +30,7 @@ module m_axi_stream(/*AUTOARG*/
 
   /*AUTOWIRE*/
   wire s_send_end;
-  wire fifo_re;
+  wire buf_re;
 
   /*AUTOREG*/
   reg               r_state;
@@ -90,7 +90,7 @@ module m_axi_stream(/*AUTOARG*/
       r_tlast <= r_read_ptr == WORDS - 1;
 
 //==========================================================
-// fifo control
+// buffer control
 //==========================================================
 
   assign s_send_end = r_send_end;
@@ -100,7 +100,7 @@ module m_axi_stream(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_tdata <= 1;
-    else if (fifo_re)
+    else if (buf_re)
       r_tdata <= r_read_ptr + 1;
 
   always @(posedge clk)
@@ -108,7 +108,7 @@ module m_axi_stream(/*AUTOARG*/
       r_read_ptr <= 0;
     else
       if (r_read_ptr <= WORDS - 1)
-        if (fifo_re)
+        if (buf_re)
           r_read_ptr <= r_read_ptr + 1;
 
   always @(posedge clk)
@@ -116,7 +116,7 @@ module m_axi_stream(/*AUTOARG*/
       r_send_end <= 0;
     else
       if (r_read_ptr <= WORDS - 1) begin
-        if (fifo_re)
+        if (buf_re)
           r_send_end <= 0;
       end
       else if (r_read_ptr == WORDS)

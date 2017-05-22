@@ -26,8 +26,7 @@
 *
 * Except as contained in this notice, the name of the Xilinx shall not be used
 * in advertising or otherwise to promote the sale, use or other dealings in
-* this Software without prior written authorization from Xilinx.
-*
+* this Software without prior written authorization from Xilinx.  
 ******************************************************************************/
 
 /*
@@ -46,23 +45,45 @@
  */
 
 #include <stdio.h>
-#include "platform.h"
+#include <time.h>
+
+#include "xil_io.h"
 #include "xil_printf.h"
 
-#include "time.h"
-#include "xil_io.h"
 #define port(n) (XPAR_AXI_TOP_0_BASEADDR + 4*n)
 
-static u32 mem[1024] = {0};
+volatile u32 *mem = (volatile u32 *)0x43C00000;
+static u32 mem_we = 0;
+static u32 mem_addr = 0;
+static u32 mem_wdata = 0;
+static u32 mem_rdata = 0;
 
-void proc(void)
+void proc(int t)
 {
-  // printf("input your number: \n");
-  // scanf("%d", &n);
-  // printf("number is: %d\n", n);
+  switch (t) {
+    case 0:
+      Xil_Out32(port(0), 0x1);
+      break;
 
-  Xil_Out32(port(0), 0x1);
-  Xil_Out32(port(1), 0x1);
+    case 1:
+      Xil_Out32(port(0), 0x0);
+      break;
+
+    case 2:
+      mem_we = 0;
+      mem_addr = 2;
+      mem_wdata = 5;
+      Xil_Out32(port(1), 0x1);
+      break;
+
+    case 3:
+      mem_we = 1;
+      Xil_Out32(port(1), 0x0);
+      break;
+
+    default:
+      break;
+  }
 }
 
 void init_port(void)
@@ -73,11 +94,11 @@ void init_port(void)
     Xil_Out32(port(i), 0x0);
 }
 
-void print_port(void)
+void print_reg(void)
 {
   int i;
 
-  printf("port: {\n");
+  printf("reg: {\n");
   for (i = 0; i < 32; i++) {
     if (i % 4 == 0) printf("    ");
     if (i < 10)
@@ -89,14 +110,19 @@ void print_port(void)
   printf("}\n");
 }
 
-void print_mem(u32 *mem, u32 we, u32 addr, u32 wdata)
+void print_mem(void)
 {
+  mem_rdata = mem[mem_addr];
+
   printf("mem: {\n");
-  printf("    mem_we:    %8x,\n", we);
-  printf("    mem_addr:  %8x,\n", addr);
-  printf("    mem_wdata: %8x,\n", wdata);
-  printf("    mem_rdata: %8x,\n", mem[addr]);
+  printf("    mem_we:    %8x,\n", mem_we);
+  printf("    mem_addr:  %8x,\n", mem_addr);
+  printf("    mem_wdata: %8x,\n", mem_wdata);
+  printf("    mem_rdata: %8x,\n", mem_rdata);
   printf("}\n");
+
+  if (mem_we)
+    mem[mem_addr] = mem_wdata;
 }
 
 void print_buf(u32 re)
@@ -111,32 +137,41 @@ int main()
 {
   int t = 0;
   int n = 0;
-  char str[30];
 
-  init_platform();
-  init_port();
-  setbuf(stdout, NULL);
-  printf("\033[2J");
+  for (n = 1; n <= 100000; n++) {
+    n * n + n * n + n * n;
+  }
 
-  printf("---------- start ----------\n");
+  for (n = 1; n <= 20; n++) {
+    for (t = 0; t < 16; t++)
+      Xil_Out32(port(t), n*t);
 
-  proc();
+    for (t = 16; t < 32; t++)
+      printf("port%d: %d\n", t, Xil_In32(port(t)));
+  }
+  // init_port();
+  // setbuf(stdout, NULL);
+  // printf("\033[2J");
+  //
+  // puts("### start ######################################################################");
+  //
+  // while (1) {
+  //   proc(t);
+  //
+  //   printf("time: %5d\n", t);
+  //   print_reg();
+  //   print_mem();
+  //   print_buf(0x0);
+  //
+  //   // n = getchar();
+  //   // if (t != 0 && n != 13)
+  //   //   break;
+  //   puts("################################################################################");
+  //
+  //   t = t + 1;
+  // }
+  //
+  // puts("###  end  ######################################################################");
 
-  do {
-    printf("\033[2J");
-
-    printf("time: %d\n", t);
-    print_port();
-    print_mem(&mem, 0x0, 0x0, 0x0);
-    print_buf(0x0);
-    sleep(2);
-
-    n = getchar();
-    t = t + 1;
-  } while (n != EOF);
-
-  printf("---------- end ----------\n");
-
-  cleanup_platform();
   return 0;
 }

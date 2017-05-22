@@ -259,7 +259,6 @@ module s_axi_lite(/*AUTOARG*/
           default: r_rdata <= 0;
         endcase
 
-
   always @(posedge clk)
     if (!xrst)
       r_rresp <= 0;

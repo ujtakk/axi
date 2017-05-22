@@ -17,15 +17,15 @@ module s_axi_stream(/*AUTOARG*/);
   input [DWIDTH-1:0]    tdata;
   input [DWIDTH/8-1:0]  tstrb;
   input                 tlast;
-  input                 buf_re;
+  input                 buf_isfull;
 
   /*AUTOOUTPUT*/
-  output tready;
-  output [DWIDTH-1:0]   buf_data;
+  output              tready;
+  output              buf_we;
+  output [DWIDTH-1:0] buf_wdata;
 
   /*AUTOWIRE*/
   wire s_write_end;
-  wire fifo_we;
 
   /*AUTOREG*/
   reg r_state;
@@ -63,47 +63,25 @@ module s_axi_stream(/*AUTOARG*/);
     if (!xrst)
       r_tready <= 0;
     else
-      r_tready <= r_state == S_WRITE && r_write_ptr <= WORDS - 1;
+      r_tready <= r_state == S_WRITE && !buf_isfull;
 
 //==========================================================
-// fifo control
+// buffer control
 //==========================================================
 
   assign s_write_end = r_write_end;
 
-  assign fifo_we = tvalid && r_tready;
-  assign buf_data = fifo[r_read_ptr];
-
-  // NOTE: We kill the wstrb
-  always @(posedge clk)
-    if (fifo_we)
-      fifo[r_write_ptr] <= tdata;
-
-  always @(posedge clk)
-    if (!xrst)
-      r_write_ptr <= 0;
-    else
-      if (r_write_ptr <= WORDS - 1)
-        if (fifo_we)
-          r_write_ptr <= r_write_ptr + 1;
-
-  always @(posedge clk)
-    if (!xrst)
-      r_read_ptr <= 0;
-    else
-      if (r_read_ptr <= WORDS - 1)
-        if (buf_re)
-          r_read_ptr <= r_read_ptr + 1;
+  assign buf_we    = tvalid && r_tready;
+  assign buf_wdata = tdata;
 
   always @(posedge clk)
     if (!xrst)
       r_write_end <= 0;
     else
-      if (r_write_ptr <= WORDS - 1) begin
-        if (fifo_we)
+      if (!buf_isfull) begin
+        if (buf_we)
           r_write_end <= 0;
-
-        if (r_write_ptr == WORDS - 1 || tlast)
+        if (buf_isfull || tlast)
           r_write_end <= 1;
       end
 

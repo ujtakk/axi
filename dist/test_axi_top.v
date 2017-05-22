@@ -92,10 +92,6 @@ module test_axi_top;
 
   /*AUTOWIRE*/
   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-  wire			ack_m_axi;		// From dut0 of axi_top.v
-  wire			ack_m_axi_lite;		// From dut0 of axi_top.v
-  wire			err_m_axi;		// From dut0 of axi_top.v
-  wire			err_m_axi_lite;		// From dut0 of axi_top.v
   wire [MEM_WIDTH-1:0]	m_axi_araddr;		// From dut0 of axi_top.v
   wire [1:0]		m_axi_arburst;		// From dut0 of axi_top.v
   wire [3:0]		m_axi_arcache;		// From dut0 of axi_top.v
@@ -140,8 +136,6 @@ module test_axi_top;
   wire [DWIDTH/8-1:0]	m_axi_wstrb;		// From dut0 of axi_top.v
   wire [WUSER_WIDTH-1:0] m_axi_wuser;		// From dut0 of axi_top.v
   wire			m_axi_wvalid;		// From dut0 of axi_top.v
-  wire			probe0;			// From dut0 of axi_top.v
-  wire			probe1;			// From dut0 of axi_top.v
   wire			s_axi_arready;		// From dut0 of axi_top.v
   wire			s_axi_awready;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	s_axi_bid;		// From dut0 of axi_top.v
@@ -198,12 +192,6 @@ module test_axi_top;
 
   axi_top dut0(/*AUTOINST*/
 	       // Outputs
-	       .ack_m_axi		(ack_m_axi),
-	       .ack_m_axi_lite		(ack_m_axi_lite),
-	       .err_m_axi		(err_m_axi),
-	       .err_m_axi_lite		(err_m_axi_lite),
-	       .probe0			(probe0),
-	       .probe1			(probe1),
 	       .s_axi_lite_awready	(s_axi_lite_awready),
 	       .s_axi_lite_wready	(s_axi_lite_wready),
 	       .s_axi_lite_bresp	(s_axi_lite_bresp[1:0]),
