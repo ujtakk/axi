@@ -336,20 +336,20 @@ module axi_top(/*AUTOARG*/
   // assign = port15;
 
   // Output ports
-  assign port31 = ack_m_axi_lite;
-  assign port30 = err_m_axi_lite;
-  assign port29 = ack_m_axi;
-  assign port28 = err_m_axi;
-  assign port27 = 0;
-  assign port26 = buf_isempty;
-  assign port25 = buf_isfull;
-  assign port24 = 0;
-  assign port23 = 0;
-  assign port22 = 0;
-  assign port21 = 0;
-  assign port20 = 0;
-  assign port19 = 0;
-  assign port18 = 0;
+  assign port31 = s_axi_awvalid;
+  assign port30 = s_axi_awready;
+  assign port29 = s_axi_awaddr;
+  assign port28 = s_axi_wvalid;
+  assign port27 = s_axi_wready;
+  assign port26 = s_axi_wdata;
+  assign port25 = s_axi_bvalid;
+  assign port24 = s_axi_bready;
+  assign port23 = s_axi_arvalid;
+  assign port22 = s_axi_arready;
+  assign port21 = s_axi_araddr;
+  assign port20 = s_axi_rvalid;
+  assign port19 = s_axi_rready;
+  assign port18 = s_axi_rdata;
   assign port17 = probe0;
   assign port16 = probe1;
 

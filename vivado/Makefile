@@ -1,4 +1,4 @@
-BOARD = zedboard
+BOARD = zybo
 APP   = iotest
 
 .PHONY: run sw hw zybo zedboard ip all clean

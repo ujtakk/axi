@@ -89,8 +89,8 @@ module s_axi(/*AUTOARG*/);
   reg                   r_rlast;
   reg [RUSER_WIDTH-1:0] r_ruser;
   reg                   r_rvalid;
-  reg r_awv_issued;
-  reg r_arv_issued;
+  reg                   r_awv_issued;
+  reg                   r_arv_issued;
 
 //==========================================================
 // write address control
@@ -127,7 +127,7 @@ module s_axi(/*AUTOARG*/);
 
           2'b01: begin
             r_awaddr[MEM_WIDTH-1:LSB] <= r_awaddr[MEM_WIDTH-1:LSB] + 1;
-            r_awaddr[LSB-1:0]      <= {LSB{1'b0}};
+            r_awaddr[LSB-1:0]         <= {LSB{1'b0}};
           end
 
           2'b10:
@@ -135,7 +135,7 @@ module s_axi(/*AUTOARG*/);
               r_awaddr <= r_awaddr - aw_wrap_size;
             else begin
               r_awaddr[MEM_WIDTH-1:LSB] <= r_awaddr[MEM_WIDTH-1:LSB] + 1;
-              r_awaddr[LSB-1:0]      <= {LSB{1'b0}};
+              r_awaddr[LSB-1:0]         <= {LSB{1'b0}};
             end
 
           default:
@@ -241,14 +241,14 @@ module s_axi(/*AUTOARG*/);
             r_araddr <= r_araddr;
           2'b01: begin
             r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
-            r_araddr[LSB-1:0]      <= {LSB{1'b0}};
+            r_araddr[LSB-1:0]         <= {LSB{1'b0}};
           end
           2'b10:
             if (ar_wrap_en)
               r_araddr <= r_araddr - ar_wrap_size;
             else begin
               r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
-              r_araddr[LSB-1:0]      <= {LSB{1'b0}};
+              r_araddr[LSB-1:0]         <= {LSB{1'b0}};
             end
           default:
             r_araddr <= r_araddr[MEM_WIDTH-1:LSB] + 1;
@@ -333,8 +333,8 @@ module s_axi(/*AUTOARG*/);
 //==========================================================
 
   assign mem_we    = r_wready && wvalid;
-  assign mem_addr  = r_arv_issued ? r_araddr[MEMSIZE-1+LSB:LSB]
-                   : r_awv_issued ? r_awaddr[MEMSIZE-1+LSB:LSB]
+  assign mem_addr  = r_arv_issued ? r_araddr[MEM_WIDTH-1:LSB]
+                   : r_awv_issued ? r_awaddr[MEM_WIDTH-1:LSB]
                    : 0;
   assign mem_wdata = wdata;
   assign rdata     = mem_rdata;
