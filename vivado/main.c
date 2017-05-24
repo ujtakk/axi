@@ -4,8 +4,8 @@
 #define BUFSIZE 7
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include <assert.h>
 
 #include "xil_io.h"
 #include "xil_printf.h"
@@ -22,7 +22,20 @@ static u32 mem_addr  = 0;
 static u32 mem_wdata = 0;
 static u32 mem_rdata = 0;
 
-#define assert_eq(a, b) assert((a) == (b))
+#define assert_eq(a, b) do {                                  \
+  if ((a) != (b)) {                                           \
+    printf("Assertion failed: %s == %s, file %s, line %d\n",  \
+      #a, #b, __FILE__, __LINE__);                            \
+    printf("\t%s == %d, %s == %d\n", #a, (a), #b, (b));       \
+    printf("%s: FAIL\n", __func__);                           \
+    return EXIT_FAILURE;                                      \
+  }                                                           \
+} while (0)
+
+#define test_return() do {          \
+  printf("%s: PASS\n", __func__);   \
+  return EXIT_SUCCESS;              \
+} while (0)
 
 void proc(int t)
 {
@@ -98,36 +111,31 @@ void print_buf(u32 re)
   printf("}\n");
 }
 
-void test_return(const char *s)
-{
-  printf("%s: PASS\n", s);
-}
-
 void test_s_axi_lite(void)
 {
   int i;
-  u32 src[REG_WIDTH], dst[REG_WIDTH];
+  u32 src[REG_WIDTH/2], dst[REG_WIDTH/2];
 
-  for (i = 0; i < REG_WIDTH; i++)
+  for (i = 0; i < REG_WIDTH/2; i++)
     src[i] = i * i;
 
-  for (i = 0; i < REG_WIDTH; i++) {
+  for (i = 0; i < REG_WIDTH/2; i++) {
     Xil_Out32(port(i), src[i]);
     dst[i] = Xil_In32(port(i));
   }
 
-  for (i = 0; i < REG_WIDTH; i++) {
+  for (i = 0; i < REG_WIDTH/2; i++) {
     assert_eq(Xil_In32(port(i)), src[i]);
     assert_eq(dst[i], src[i]);
   }
 
-  memset(mem, 0, sizeof(u32)*REG_WIDTH);
-  memset(dst, 0, sizeof(u32)*REG_WIDTH);
+  memset(mem, 0, sizeof(u32)*REG_WIDTH/2);
+  memset(dst, 0, sizeof(u32)*REG_WIDTH/2);
 
-  memcpy(_port, src, sizeof(u32)*REG_WIDTH);
-  memcpy(dst, _port, sizeof(u32)*REG_WIDTH);
+  memcpy(_port, src, sizeof(u32)*REG_WIDTH/2);
+  memcpy(dst, _port, sizeof(u32)*REG_WIDTH/2);
 
-  for (i = 0; i < REG_WIDTH; i++) {
+  for (i = 0; i < REG_WIDTH/2; i++) {
     assert_eq(_port[i], src[i]);
     assert_eq(dst[i], src[i]);
   }
@@ -135,7 +143,7 @@ void test_s_axi_lite(void)
   for (i = 0; i < 32; i++)
     assert_eq(_port[i], Xil_In32(port(i)));
 
-  test_return("test_s_axi_lite");
+  test_return();
 }
 
 void test_s_axi(void)
@@ -167,7 +175,7 @@ void test_s_axi(void)
     assert_eq(dst[i], src[i]);
   }
 
-  test_return("test_s_axi");
+  test_return();
 }
 
 int main(void)
