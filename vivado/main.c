@@ -1,4 +1,3 @@
-#define TIME    10
 #define REGSIZE 5
 #define MEMSIZE 10
 #define BUFSIZE 7
@@ -14,9 +13,9 @@
 #define MEM_WIDTH (1 << MEMSIZE)
 #define BUF_WIDTH (1 << BUFSIZE)
 
-#define port(n) (XPAR_AXI_TOP_0_BASEADDR + 4*n)
-volatile u32 *_port = (volatile u32 *)0x43C10000;
-volatile u32 *mem = (volatile u32 *)0x43C00000;
+#define port(n) (XPAR_AXI_TOP_0_BASEADDR + 4*(n))
+static u32 *_port = (u32 *)0x43C10000;
+static u32 *mem = (u32 *)0x43C00000;
 static u32 mem_we    = 0;
 static u32 mem_addr  = 0;
 static u32 mem_wdata = 0;
@@ -26,7 +25,7 @@ static u32 mem_rdata = 0;
   if ((a) != (b)) {                                           \
     printf("Assertion failed: %s == %s, file %s, line %d\n",  \
       #a, #b, __FILE__, __LINE__);                            \
-    printf("\t%s == %d, %s == %d\n", #a, (a), #b, (b));       \
+    printf("\t%s == %lx, %s == %lx\n", #a, (a), #b, (b));     \
     printf("%s: FAIL\n", __func__);                           \
     return EXIT_FAILURE;                                      \
   }                                                           \
@@ -36,6 +35,8 @@ static u32 mem_rdata = 0;
   printf("%s: PASS\n", __func__);   \
   return EXIT_SUCCESS;              \
 } while (0)
+
+typedef int test;
 
 void proc(int t)
 {
@@ -80,9 +81,9 @@ void print_reg(void)
   for (i = 0; i < 32; i++) {
     if (i % 4 == 0) printf("    ");
     if (i < 10)
-      printf("port%1d:  %8x, ", i, Xil_In32(port(i)));
+      printf("port%1d:  %8lx, ", i, Xil_In32(port(i)));
     else
-      printf("port%2d: %8x, ", i, Xil_In32(port(i)));
+      printf("port%2d: %8lx, ", i, Xil_In32(port(i)));
     if (i % 4 == 3) printf("\n");
   }
   printf("}\n");
@@ -93,10 +94,10 @@ void print_mem(void)
   mem_rdata = mem[mem_addr];
 
   printf("mem: {\n");
-  printf("    mem_we:    %8x,\n", mem_we);
-  printf("    mem_addr:  %8x,\n", mem_addr);
-  printf("    mem_wdata: %8x,\n", mem_wdata);
-  printf("    mem_rdata: %8x,\n", mem_rdata);
+  printf("    mem_we:    %8lx,\n", mem_we);
+  printf("    mem_addr:  %8lx,\n", mem_addr);
+  printf("    mem_wdata: %8lx,\n", mem_wdata);
+  printf("    mem_rdata: %8lx,\n", mem_rdata);
   printf("}\n");
 
   if (mem_we)
@@ -106,12 +107,36 @@ void print_mem(void)
 void print_buf(u32 re)
 {
   printf("buf: {\n");
-  printf("    buf_re:   %8x,\n", re);
-  printf("    buf_data: %8x,\n", 0x0);
+  printf("    buf_re:   %8lx,\n", re);
+  printf("    buf_data: %8lx,\n", (u32)0x0);
   printf("}\n");
 }
 
-void test_s_axi_lite(void)
+void probe(void)
+{
+  const int TIME = 10;
+  int t = 0;
+  /* int n = 0; */
+
+  while (t < TIME) {
+    proc(t);
+
+    printf("time: %5d\n", t);
+    print_reg();
+    print_mem();
+    print_buf(0x0);
+
+    // n = getchar();
+    // if (t != 0 && n != 13)
+    // if (t == TIME - 1)
+    //   break;
+    puts("############################################################");
+
+    t = t + 1;
+  }
+}
+
+test test_s_axi_lite(void)
 {
   int i;
   u32 src[REG_WIDTH/2], dst[REG_WIDTH/2];
@@ -146,7 +171,7 @@ void test_s_axi_lite(void)
   test_return();
 }
 
-void test_s_axi(void)
+test test_s_axi(void)
 {
   int i;
   u32 src[MEM_WIDTH], dst[MEM_WIDTH];
@@ -180,10 +205,6 @@ void test_s_axi(void)
 
 int main(void)
 {
-  int i;
-  int t = 0;
-  int n = 0;
-
   setbuf(stdout, NULL);
   printf("\033[2J");
 
@@ -192,22 +213,7 @@ int main(void)
   init_reg();
   init_mem();
 
-  while (t < TIME) {
-    proc(t);
-
-    printf("time: %5d\n", t);
-    print_reg();
-    print_mem();
-    print_buf(0x0);
-
-    // n = getchar();
-    // if (t != 0 && n != 13)
-    // if (t == TIME - 1)
-    //   break;
-    puts("############################################################");
-
-    t = t + 1;
-  }
+  // probe();
 
   test_s_axi_lite();
   test_s_axi();
