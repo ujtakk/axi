@@ -279,7 +279,7 @@ test test_s_axi_stream(void)
     status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, i, XAXIDMA_DMA_TO_DEVICE);
     assert_not(status != XST_SUCCESS, "Transfer failed");
 
-    BEGIN
+    XTime_GetTime(&begin);
     while (XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
       XTime_GetTime(&end);
       assert_not((double)(end-begin) / COUNTS_PER_SECOND > 1.0,
