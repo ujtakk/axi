@@ -105,14 +105,14 @@ module s_axi(/*AUTOARG*/
 // write address control
 //==========================================================
 
-  assign awready = r_awready;
+  /*ok*/assign awready = r_awready;
 
   always @(posedge clk)
     if (!xrst) begin
       r_awready    <= 0;
       r_awv_issued <= 0;
     end
-    else begin
+    else
       if (!r_awready && awvalid && !r_awv_issued && !r_arv_issued) begin
         r_awready    <= 1;
         r_awv_issued <= 1;
@@ -121,7 +121,6 @@ module s_axi(/*AUTOARG*/
         r_awv_issued <= 0;
       else
         r_awready <= 0;
-    end
 
   always @(posedge clk)
     if (!xrst)
@@ -156,20 +155,18 @@ module s_axi(/*AUTOARG*/
       r_awlen     <= 0;
       r_awlen_cnt <= 0;
     end
-    else
-      if (!r_awready && awvalid && !r_awv_issued) begin
-        r_awlen     <= awlen;
-        r_awlen_cnt <= 0;
-      end
-      else if (r_awlen_cnt <= r_awlen && r_wready && wvalid)
-        r_awlen_cnt <= r_awlen_cnt + 1;
+    else if (!r_awready && awvalid && !r_awv_issued) begin
+      r_awlen     <= awlen;
+      r_awlen_cnt <= 0;
+    end
+    else if (r_awlen_cnt <= r_awlen && r_wready && wvalid)
+      r_awlen_cnt <= r_awlen_cnt + 1;
 
   always @(posedge clk)
     if (!xrst)
       r_awburst <= 0;
-    else
-      if (!r_awready && awvalid && !r_awv_issued)
-        r_awburst <= awburst;
+    else if (!r_awready && awvalid && !r_awv_issued)
+      r_awburst <= awburst;
 
 //==========================================================
 // write data control
@@ -180,11 +177,10 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_wready <= 0;
-    else
-      if (!r_wready && wvalid && r_awv_issued)
-        r_wready <= 1;
-      else if (wlast && r_wready)
-        r_wready <= 0;
+    else if (!r_wready && wvalid && r_awv_issued)
+      r_wready <= 1;
+    else if (wlast && r_wready)
+      r_wready <= 0;
 
 //==========================================================
 // write response control
@@ -198,11 +194,10 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_bvalid <= 0;
-    else
-      if (!r_awv_issued && r_wready && wvalid && !r_bvalid && wlast)
-        r_bvalid <= 1;
-      else if (bready && r_bvalid)
-        r_bvalid <= 0;
+    else if (r_awv_issued && r_wready && wvalid && !r_bvalid && wlast)
+      r_bvalid <= 1;
+    else if (bready && r_bvalid)
+      r_bvalid <= 0;
 
   always @(posedge clk)
     if (!xrst)
@@ -213,9 +208,8 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_bresp <= 0;
-    else
-      if (!r_awv_issued && r_wready && wvalid && !r_bvalid && wlast)
-        r_bresp <= 0;
+    else if (r_awv_issued && r_wready && wvalid && !r_bvalid && wlast)
+      r_bresp <= 0;
 
 //==========================================================
 // read address control
@@ -228,15 +222,14 @@ module s_axi(/*AUTOARG*/
       r_arready    <= 0;
       r_arv_issued <= 0;
     end
+    else if (!r_arready && arvalid && !r_awv_issued && !r_arv_issued) begin
+      r_arready    <= 1;
+      r_arv_issued <= 1;
+    end
+    else if (r_rvalid && rready && r_arlen_cnt == r_arlen)
+      r_arv_issued <= 0;
     else
-      if (!r_arready && arvalid && !r_awv_issued && !r_arv_issued) begin
-        r_arready    <= 1;
-        r_arv_issued <= 1;
-      end
-      else if (!r_rvalid && rready && r_arlen_cnt == r_arlen)
-        r_arv_issued <= 0;
-      else
-        r_arready <= 0;
+      r_arready <= 0;
 
   always @(posedge clk)
     if (!xrst)
@@ -248,10 +241,12 @@ module s_axi(/*AUTOARG*/
         case (r_arburst)
           2'b00:
             r_araddr <= r_araddr;
+
           2'b01: begin
             r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
             r_araddr[LSB-1:0]         <= {LSB{1'b0}};
           end
+
           2'b10:
             if (ar_wrap_en)
               r_araddr <= r_araddr - ar_wrap_size;
@@ -259,6 +254,7 @@ module s_axi(/*AUTOARG*/
               r_araddr[MEM_WIDTH-1:LSB] <= r_araddr[MEM_WIDTH-1:LSB] + 1;
               r_araddr[LSB-1:0]         <= {LSB{1'b0}};
             end
+
           default:
             r_araddr <= r_araddr[MEM_WIDTH-1:LSB] + 1;
         endcase
@@ -268,20 +264,18 @@ module s_axi(/*AUTOARG*/
       r_arlen     <= 0;
       r_arlen_cnt <= 0;
     end
-    else
-      if (!r_arready && arvalid && !r_arv_issued) begin
-        r_arlen     <= awlen;
-        r_arlen_cnt <= 0;
-      end
-      else if (r_arlen_cnt <= r_arlen && r_rvalid && rready)
-        r_arlen_cnt <= r_arlen_cnt + 1;
+    else if (!r_arready && arvalid && !r_arv_issued) begin
+      r_arlen     <= arlen;
+      r_arlen_cnt <= 0;
+    end
+    else if (r_arlen_cnt <= r_arlen && r_rvalid && rready)
+      r_arlen_cnt <= r_arlen_cnt + 1;
 
   always @(posedge clk)
     if (!xrst)
       r_arburst <= 0;
-    else
-      if (!r_arready && arvalid && !r_arv_issued)
-        r_arburst <= arburst;
+    else if (!r_arready && arvalid && !r_arv_issued)
+      r_arburst <= arburst;
 
 //==========================================================
 // read data control
@@ -297,11 +291,10 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_rvalid <= 0;
-    else
-      if (r_arv_issued && !r_rvalid)
-        r_rvalid <= 1;
-      else if (r_rvalid && rready)
-        r_rvalid <= 0;
+    else if (r_arv_issued && !r_rvalid)
+      r_rvalid <= 1;
+    else if (r_rvalid && rready)
+      r_rvalid <= 0;
 
   // always @(posedge clk)
   //   if (!xrst)
@@ -314,15 +307,14 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_rlast <= 0;
-    else
-      if (!r_arready && arvalid && !r_arv_issued)
-        r_rlast <= 0;
-      else if (r_arlen_cnt <= r_arlen && r_rvalid && rready)
-        r_rlast <= 0;
-      else if (r_arlen_cnt == r_arlen && !rlast && r_arv_issued)
-        r_rlast <= 1;
-      else if (rready)
-        r_rlast <= 0;
+    else if (!r_arready && arvalid && !r_arv_issued)
+      r_rlast <= 0;
+    else if (r_arlen_cnt <= r_arlen && r_rvalid && rready)
+      r_rlast <= 0;
+    else if (r_arlen_cnt == r_arlen && !rlast && r_arv_issued)
+      r_rlast <= 1;
+    else if (rready)
+      r_rlast <= 0;
 
   always @(posedge clk)
     if (!xrst)
@@ -333,9 +325,8 @@ module s_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_rresp <= 0;
-    else
-      if (r_arv_issued && !r_rvalid)
-        r_rresp <= 0;
+    else if (r_arv_issued && !r_rvalid)
+      r_rresp <= 0;
 
 //==========================================================
 // memory control

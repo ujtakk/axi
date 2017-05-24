@@ -1,17 +1,28 @@
+#define TIME    10
+#define REGSIZE 5
+#define MEMSIZE 10
+#define BUFSIZE 7
+
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
 
 #include "xil_io.h"
 #include "xil_printf.h"
 
-#define port(n) (XPAR_AXI_TOP_0_BASEADDR + 4*n)
-#define TIME 10
+#define REG_WIDTH (1 << REGSIZE)
+#define MEM_WIDTH (1 << MEMSIZE)
+#define BUF_WIDTH (1 << BUFSIZE)
 
+#define port(n) (XPAR_AXI_TOP_0_BASEADDR + 4*n)
+volatile u32 *_port = (volatile u32 *)0x43C10000;
 volatile u32 *mem = (volatile u32 *)0x43C00000;
 static u32 mem_we    = 0;
 static u32 mem_addr  = 0;
 static u32 mem_wdata = 0;
 static u32 mem_rdata = 0;
+
+#define assert_eq(a, b) assert((a) == (b))
 
 void proc(int t)
 {
@@ -35,12 +46,17 @@ void proc(int t)
   }
 }
 
-void init_port(void)
+void init_reg(void)
 {
   int i;
 
   for (i = 0; i < 32; i++)
     Xil_Out32(port(i), 0x0);
+}
+
+void init_mem(void)
+{
+  memset(mem, 0, sizeof(u32)*MEM_WIDTH);
 }
 
 void print_reg(void)
@@ -82,29 +98,91 @@ void print_buf(u32 re)
   printf("}\n");
 }
 
-void bulk_transfer(void)
+void test_return(const char *s)
 {
-  int n, t, i;
+  printf("%s: PASS\n", s);
+}
 
-  for (n = 1; n <= 20; n++) {
-    for (t = 0; t < 16; t++)
-      Xil_Out32(port(t), n*t);
+void test_s_axi_lite(void)
+{
+  int i;
+  u32 src[REG_WIDTH], dst[REG_WIDTH];
 
-    for (t = 16; t < 32; t++)
-      i = Xil_In32(port(t));
+  for (i = 0; i < REG_WIDTH; i++)
+    src[i] = i * i;
+
+  for (i = 0; i < REG_WIDTH; i++) {
+    Xil_Out32(port(i), src[i]);
+    dst[i] = Xil_In32(port(i));
   }
+
+  for (i = 0; i < REG_WIDTH; i++) {
+    assert_eq(Xil_In32(port(i)), src[i]);
+    assert_eq(dst[i], src[i]);
+  }
+
+  memset(mem, 0, sizeof(u32)*REG_WIDTH);
+  memset(dst, 0, sizeof(u32)*REG_WIDTH);
+
+  memcpy(_port, src, sizeof(u32)*REG_WIDTH);
+  memcpy(dst, _port, sizeof(u32)*REG_WIDTH);
+
+  for (i = 0; i < REG_WIDTH; i++) {
+    assert_eq(_port[i], src[i]);
+    assert_eq(dst[i], src[i]);
+  }
+
+  for (i = 0; i < 32; i++)
+    assert_eq(_port[i], Xil_In32(port(i)));
+
+  test_return("test_s_axi_lite");
+}
+
+void test_s_axi(void)
+{
+  int i;
+  u32 src[MEM_WIDTH], dst[MEM_WIDTH];
+
+  for (i = 0; i < MEM_WIDTH; i++)
+    src[i] = i * i;
+
+  for (i = 0; i < MEM_WIDTH; i++) {
+    mem[i] = src[i];
+    dst[i] = mem[i];
+  }
+
+  for (i = 0; i < MEM_WIDTH; i++) {
+    assert_eq(mem[i], src[i]);
+    assert_eq(dst[i], src[i]);
+  }
+
+  memset(mem, 0, sizeof(u32)*MEM_WIDTH);
+  memset(dst, 0, sizeof(u32)*MEM_WIDTH);
+
+  memcpy(mem, src, sizeof(u32)*MEM_WIDTH);
+  memcpy(dst, mem, sizeof(u32)*MEM_WIDTH);
+
+  for (i = 0; i < MEM_WIDTH; i++) {
+    assert_eq(mem[i], src[i]);
+    assert_eq(dst[i], src[i]);
+  }
+
+  test_return("test_s_axi");
 }
 
 int main(void)
 {
+  int i;
   int t = 0;
   int n = 0;
 
-  init_port();
   setbuf(stdout, NULL);
   printf("\033[2J");
 
   puts("### start ##################################################");
+
+  init_reg();
+  init_mem();
 
   while (t < TIME) {
     proc(t);
@@ -116,11 +194,15 @@ int main(void)
 
     // n = getchar();
     // if (t != 0 && n != 13)
+    // if (t == TIME - 1)
     //   break;
     puts("############################################################");
 
     t = t + 1;
   }
+
+  test_s_axi_lite();
+  test_s_axi();
 
   puts("###  end  ##################################################");
 
