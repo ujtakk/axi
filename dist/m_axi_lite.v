@@ -51,6 +51,7 @@ module m_axi_lite(/*AUTOARG*/
   output                  rready;
 
   /*AUTOWIRE*/
+  wire req_pulse;
   wire s_write_end;
   wire s_read_end;
   wire s_comp_end;
@@ -64,6 +65,7 @@ module m_axi_lite(/*AUTOARG*/
 
   /*AUTOREG*/
   reg [1:0]         r_state;
+  reg               r_req;
   reg               r_ack;
   reg               r_err;
   reg               r_awvalid;
@@ -90,6 +92,8 @@ module m_axi_lite(/*AUTOARG*/
 
   assign probe = {30'h0, r_state};
 
+  assign req_pulse = req && !r_req;
+
   assign s_write_end = r_last_write && r_bready && bvalid;
   assign s_read_end  = r_last_read  && r_rready && rvalid;
   assign s_comp_end  = r_state == S_COMP;
@@ -99,6 +103,12 @@ module m_axi_lite(/*AUTOARG*/
 
   assign not_writing = !r_last_write && !r_write_single && !r_write_issued;
   assign not_reading = !r_last_read && !r_read_single && !r_read_issued;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_req <= 0;
+    else
+      r_req <= req;
 
   always @(posedge clk)
     if (!xrst) begin
@@ -113,7 +123,7 @@ module m_axi_lite(/*AUTOARG*/
     else
       case (r_state)
         S_IDLE:
-          if (req)
+          if (req_pulse)
             r_state <= S_WRITE;
 
         S_WRITE:
@@ -153,7 +163,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_write_idx <= 0;
-    else if (req)
+    else if (req_pulse)
       r_write_idx <= 0;
     else if (r_write_single)
       r_write_idx <= r_write_idx + 1;
@@ -161,7 +171,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_last_write <= 0;
-    else if (req)
+    else if (req_pulse)
       r_last_write <= 0;
     else if (r_write_idx == TXN_NUM && awready)
       r_last_write <= 1;
@@ -169,7 +179,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_read_idx <= 0;
-    else if (req)
+    else if (req_pulse)
       r_read_idx <= 0;
     else if (r_read_single)
       r_read_idx <= r_read_idx + 1;
@@ -177,7 +187,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_last_read <= 0;
-    else if (req)
+    else if (req_pulse)
       r_last_read <= 0;
     else if (r_read_idx == TXN_NUM && arready)
       r_last_read <= 1;
@@ -193,7 +203,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_awvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_awvalid <= 0;
     else if (r_write_single)
       r_awvalid <= 1;
@@ -218,7 +228,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_wvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_wvalid <= 0;
     else if (r_write_single)
       r_wvalid <= 1;
@@ -242,7 +252,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_bready <= 0;
-    else if (req)
+    else if (req_pulse)
       r_bready <= 0;
     else if (bvalid && !r_bready)
       r_bready <= 1;
@@ -260,7 +270,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_arvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_arvalid <= 0;
     else if (r_read_single)
       r_arvalid <= 1;
@@ -284,7 +294,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_rready <= 0;
-    else if (req)
+    else if (req_pulse)
       r_rready <= 0;
     else if (rvalid && !r_rready)
       r_rready <= 1;
@@ -304,7 +314,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_ack <= 0;
-    else if (req)
+    else if (req_pulse)
       r_ack <= 0;
     else if (s_comp_end)
       r_ack <= 1;
@@ -312,7 +322,7 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_err <= 0;
-    else if (req)
+    else if (req_pulse)
       r_err <= 0;
     else if (err_diff || err_wresp || err_rresp)
       r_err <= 1;

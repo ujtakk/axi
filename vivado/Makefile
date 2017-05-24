@@ -27,4 +27,5 @@ zybo:
 clean:
 	rm -rf ip zybo zedboard .Xil
 	rm -f vivado*
+	rm -f hs_err_pid*.log
 

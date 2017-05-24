@@ -25,7 +25,8 @@ static u32  mem_rdata = 0;
 #include "xaxidma.h"
 static XAxiDma dma;
 static XAxiDma_Config *dma_cfg;
-const int dma_id      = XPAR_AXIDMA_0_DEVICE_ID;
+const int dma_id = XPAR_AXIDMA_0_DEVICE_ID;
+static u32 buf_re = port(2);
 
 #ifndef DDR_BASE_ADDR
 #warning CHECK FOR THE VALID DDR ADDRESS IN XPARAMETERS.H, \
@@ -123,6 +124,14 @@ void proc(int t)
       mem_we = 0;
       break;
 
+    case 3:
+      Xil_Out32(port(2), 0x1);
+      break;
+
+    case 4:
+      Xil_Out32(port(2), 0x0);
+      break;
+
     default:
       break;
   }
@@ -170,10 +179,10 @@ void print_buf(u32 re)
 void probe(void)
 {
   const int TIME = 10;
-  int t = 0;
-  /* int n = 0; */
+  static int t = 0;
+  int n = 0;
 
-  while (t < TIME) {
+  // while (t < TIME) {
     proc(t);
 
     printf("time: %5d\n", t);
@@ -181,14 +190,14 @@ void probe(void)
     print_mem();
     print_buf(0x0);
 
-    // n = getchar();
+    n = getchar();
     // if (t != 0 && n != 13)
     // if (t == TIME - 1)
     //   break;
     puts("############################################################");
 
     t = t + 1;
-  }
+  // }
 }
 
 test test_s_axi_lite(void)
@@ -270,21 +279,29 @@ test test_s_axi_stream(void)
 
   value = 12;
 
-  for(i = 0; i < BUF_WIDTH; i++) {
+  for (i = 0; i < BUF_WIDTH; i++) {
       src[i] = value;
       value  = value + 1;
   }
 
-  for(i = sizeof(u32); i < BUF_WIDTH; i += sizeof(u32)) {
+  init_reg();
+
+  for (i = sizeof(u32); i < BUF_WIDTH; i += sizeof(u32)) {
     status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, i, XAXIDMA_DMA_TO_DEVICE);
     assert_not(status != XST_SUCCESS, "Transfer failed");
 
     XTime_GetTime(&begin);
     while (XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
-      XTime_GetTime(&end);
-      assert_not((double)(end-begin) / COUNTS_PER_SECOND > 1.0,
+      XTime_GetTime(&end); assert_not((double)(end-begin) / COUNTS_PER_SECOND > 1.0,
                   "More than 1sec was elapsed on dma");
       /* Blocking */
+    }
+
+    // Clear written data by reading
+    // port(2): buf_re
+    for (int j = 0; j < i; j++) {
+      Xil_Out32(buf_re, 0x1);
+      Xil_Out32(buf_re, 0x0);
     }
   }
 
@@ -301,8 +318,6 @@ int main(void)
   init_reg();
   init_mem();
   init_buf();
-
-  // probe();
 
   test_s_axi_lite();
   test_s_axi();

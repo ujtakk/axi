@@ -35,9 +35,6 @@ module s_axi_stream(/*AUTOARG*/
   reg r_state;
   reg r_tready;
   reg r_write_end;
-  reg [DWIDTH-1:0] fifo [0:WORDS-1];
-  reg [BUFSIZE-1:0] r_write_ptr;
-  reg [BUFSIZE-1:0] r_read_ptr;
 
 //==========================================================
 // core control

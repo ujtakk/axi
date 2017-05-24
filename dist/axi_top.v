@@ -43,6 +43,7 @@
       "mem_rdata"
       "buf_we"
       "buf_re"
+      "buf_reset"
       "buf_wdata"
       "buf_isempty"
       "buf_isfull"
@@ -308,6 +309,7 @@ module axi_top(/*AUTOARG*/
   /*o*/ wire [DWIDTH-1:0]   mem_rdata;
   /*i*/ wire                buf_we;
   /*i*/ wire                buf_re;
+  /*i*/ wire                buf_reset;
   /*i*/ wire [DWIDTH-1:0]   buf_wdata;
   /*o*/ wire                buf_isempty;
   /*o*/ wire                buf_isfull;
@@ -321,7 +323,7 @@ module axi_top(/*AUTOARG*/
   assign req_m_axi_lite = port0[0];
   assign req_m_axi = port1[0];
   assign buf_re = port2[0];
-  // assign = port3;
+  assign buf_reset = port3[0];
   // assign = port4;
   // assign = port5;
   // assign = port6;
@@ -336,20 +338,20 @@ module axi_top(/*AUTOARG*/
   // assign = port15;
 
   // Output ports
-  assign port31 = s_axi_awvalid;
-  assign port30 = s_axi_awready;
-  assign port29 = s_axi_awaddr;
-  assign port28 = s_axi_wvalid;
-  assign port27 = s_axi_wready;
-  assign port26 = s_axi_wdata;
-  assign port25 = s_axi_bvalid;
-  assign port24 = s_axi_bready;
-  assign port23 = s_axi_arvalid;
-  assign port22 = s_axi_arready;
-  assign port21 = s_axi_araddr;
-  assign port20 = s_axi_rvalid;
-  assign port19 = s_axi_rready;
-  assign port18 = s_axi_rdata;
+  assign port31 = s_axi_stream_tready;
+  assign port30 = s_axi_stream_tdata;
+  assign port29 = s_axi_stream_tstrb;
+  assign port28 = s_axi_stream_tlast;
+  assign port27 = s_axi_stream_tvalid;
+  assign port26 = buf_we;
+  assign port25 = buf_re;
+  assign port24 = buf_wdata;
+  assign port23 = buf_isempty;
+  assign port22 = buf_isfull;
+  assign port21 = buf_rdata;
+  assign port20 = 0;
+  assign port19 = 0;
+  assign port18 = 0;
   assign port17 = probe0;
   assign port16 = probe1;
 
@@ -434,7 +436,7 @@ module axi_top(/*AUTOARG*/
 			     .port16		(port16[DWIDTH-1:0]));
 
   /* m_axi_lite AUTO_TEMPLATE (
-      .probe    (probe0),
+      .probe    (),
       .req      (req_m_axi_lite),
       .ack      (ack_m_axi_lite),
       .err      (err_m_axi_lite),
@@ -464,7 +466,7 @@ module axi_top(/*AUTOARG*/
 			     // Outputs
 			     .ack		(ack_m_axi_lite), // Templated
 			     .err		(err_m_axi_lite), // Templated
-			     .probe		(probe0),	 // Templated
+			     .probe		(),		 // Templated
 			     .awvalid		(m_axi_lite_awvalid), // Templated
 			     .awaddr		(m_axi_lite_awaddr), // Templated
 			     .awprot		(m_axi_lite_awprot), // Templated
@@ -606,7 +608,7 @@ module axi_top(/*AUTOARG*/
 		     .mem_wdata		(mem_wdata[DWIDTH-1:0]));
 
   /* m_axi AUTO_TEMPLATE (
-      .probe    (probe1),
+      .probe    (),
       .req      (req_m_axi),
       .ack      (ack_m_axi),
       .err      (err_m_axi),
@@ -659,7 +661,7 @@ module axi_top(/*AUTOARG*/
 		   // Outputs
 		   .ack			(ack_m_axi),		 // Templated
 		   .err			(err_m_axi),		 // Templated
-		   .probe		(probe1),		 // Templated
+		   .probe		(),			 // Templated
 		   .awvalid		(m_axi_awvalid),	 // Templated
 		   .awid		(m_axi_awid),		 // Templated
 		   .awaddr		(m_axi_awaddr),		 // Templated
@@ -733,18 +735,23 @@ module axi_top(/*AUTOARG*/
   /* buffer AUTO_TEMPLATE (
       .clk      (s_axi_stream_aclk),
       .xrst     (s_axi_stream_aresetn),
+      .wptr_probe(probe0),
+      .rptr_probe(probe1),
   ); */
   buffer buffer_inst(/*AUTOINST*/
 		     // Outputs
 		     .buf_isempty	(buf_isempty),
 		     .buf_isfull	(buf_isfull),
 		     .buf_rdata		(buf_rdata[DWIDTH-1:0]),
+		     .wptr_probe	(probe0),		 // Templated
+		     .rptr_probe	(probe1),		 // Templated
 		     // Inputs
 		     .clk		(s_axi_stream_aclk),	 // Templated
 		     .xrst		(s_axi_stream_aresetn),	 // Templated
 		     .buf_we		(buf_we),
 		     .buf_re		(buf_re),
-		     .buf_wdata		(buf_wdata[DWIDTH-1:0]));
+		     .buf_wdata		(buf_wdata[DWIDTH-1:0]),
+		     .buf_reset		(buf_reset));
 
   /* m_axi_stream AUTO_TEMPLATE (
     .clk    (m_axi_stream_aclk),

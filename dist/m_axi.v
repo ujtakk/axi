@@ -76,6 +76,7 @@ module m_axi(/*AUTOARG*/
   output                    rready;
 
   /*AUTOWIRE*/
+  wire req_pulse;
   wire s_write_end;
   wire s_read_end;
   wire s_comp_end;
@@ -88,6 +89,7 @@ module m_axi(/*AUTOARG*/
 
   /*AUTOREG*/
   reg [1:0]               r_state;
+  reg                     r_req;
   reg                     r_ack;
   reg                     r_err;
   reg [ID_WIDTH-1:0]      r_awid;
@@ -135,12 +137,20 @@ module m_axi(/*AUTOARG*/
 
   assign probe = {30'h0, r_state};
 
+  assign req_pulse = req && !r_req;
+
   assign s_write_end = bvalid && r_bready && r_write_burst_cnt[NO_BURSTS_REQ];
   assign s_read_end  = rvalid && r_rready && r_read_idx == BURST_LEN - 1
                     && r_read_burst_cnt[NO_BURSTS_REQ];
   assign s_comp_end  = r_state == S_COMP;
 
   assign burst_size = BURST_LEN * DWIDTH/8;
+
+  always @(posedge clk)
+    if (!xrst)
+      r_req <= 0;
+    else
+      r_req <= req;
 
   always @(posedge clk)
     if (!xrst) begin
@@ -151,7 +161,7 @@ module m_axi(/*AUTOARG*/
     else
       case (r_state)
         S_IDLE:
-          if (req)
+          if (req_pulse)
             r_state <= S_WRITE;
 
         S_WRITE:
@@ -181,7 +191,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_write_active <= 0;
-    else if (req)
+    else if (req_pulse)
       r_write_active <= 0;
     else if (r_write_single_burst)
       r_write_active <= 1;
@@ -191,7 +201,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_read_active <= 0;
-    else if (req)
+    else if (req_pulse)
       r_read_active <= 0;
     else if (r_read_single_burst)
       r_read_active <= 1;
@@ -217,7 +227,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_awvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_awvalid <= 0;
     else if (!r_awvalid && r_write_single_burst)
       r_awvalid <= 1;
@@ -227,7 +237,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_awaddr <= 0;
-    else if (req)
+    else if (req_pulse)
       r_awaddr <= 0;
     else if (awready && r_awvalid)
       r_awaddr <= r_awaddr + burst_size;
@@ -247,7 +257,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_wvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_wvalid <= 0;
     else if (!r_wvalid && r_write_single_burst)
       r_wvalid <= 1;
@@ -257,7 +267,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_wdata <= 0;
-    else if (req)
+    else if (req_pulse)
       r_wdata <= 0;
     else if (wnext)
       r_wdata <= r_wdata + 1;
@@ -265,7 +275,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_wlast <= 0;
-    else if (req)
+    else if (req_pulse)
       r_wlast <= 0;
     else if ((r_write_idx == BURST_LEN - 2 && BURST_LEN >= 2 && wnext)
               || BURST_LEN == 1)
@@ -278,7 +288,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_write_idx <= 0;
-    else if (req || r_write_single_burst)
+    else if (req_pulse || r_write_single_burst)
       r_write_idx <= 0;
     else if (wnext && r_write_idx != BURST_LEN - 1)
       r_write_idx <= r_write_idx + 1;
@@ -294,7 +304,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_bready <= 0;
-    else if (req)
+    else if (req_pulse)
       r_bready <= 0;
     else if (bvalid && !r_bready)
       r_bready <= 1;
@@ -320,7 +330,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_arvalid <= 0;
-    else if (req)
+    else if (req_pulse)
       r_arvalid <= 0;
     else if (!r_arvalid && r_read_single_burst)
       r_arvalid <= 1;
@@ -330,7 +340,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_araddr <= 0;
-    else if (req)
+    else if (req_pulse)
       r_araddr <= 0;
     else if (arready && r_arvalid)
       r_araddr <= r_araddr + burst_size;
@@ -348,7 +358,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_rready <= 0;
-    else if (req)
+    else if (req_pulse)
       r_rready <= 0;
     else if (rvalid) begin
       if (rlast && r_rready)
@@ -360,7 +370,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_read_idx <= 0;
-    else if (req || r_read_single_burst)
+    else if (req_pulse || r_read_single_burst)
       r_read_idx <= 0;
     else if (rnext && r_read_idx != BURST_LEN - 1)
       r_read_idx <= r_read_idx + 1;
@@ -377,7 +387,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_ack <= 0;
-    else if (req)
+    else if (req_pulse)
       r_ack <= 0;
     else if (s_comp_end)
       r_ack <= 1;
@@ -385,7 +395,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_err <= 0;
-    else if (req)
+    else if (req_pulse)
       r_err <= 0;
     else if (err_diff || err_wresp || err_rresp)
       r_err <= 1;
@@ -399,7 +409,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_write_burst_cnt <= 0;
-    else if (req)
+    else if (req_pulse)
       r_write_burst_cnt <= 0;
     else if (awready && r_awvalid) begin
       if (r_write_burst_cnt[NO_BURSTS_REQ] == 1'b0)
@@ -409,7 +419,7 @@ module m_axi(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_read_burst_cnt <= 0;
-    else if (req)
+    else if (req_pulse)
       r_read_burst_cnt <= 0;
     else if (arready && r_arvalid) begin
       if (r_read_burst_cnt[NO_BURSTS_REQ] == 1'b0)
