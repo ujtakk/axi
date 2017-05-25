@@ -74,13 +74,12 @@ module s_axi_stream(/*AUTOARG*/);
   always @(posedge clk)
     if (!xrst)
       r_write_end <= 0;
-    else
-      if (!buf_isfull) begin
-        if (buf_we)
-          r_write_end <= 0;
-        if (buf_isfull || tlast)
-          r_write_end <= 1;
-      end
+    else if (!buf_isfull) begin
+      if (buf_we)
+        r_write_end <= 0;
+      if (buf_isfull || tlast)
+        r_write_end <= 1;
+    end
 
 endmodule
 

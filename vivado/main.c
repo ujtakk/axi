@@ -26,8 +26,12 @@ static u32  mem_rdata = 0;
 static XAxiDma dma;
 static XAxiDma_Config *dma_cfg;
 const int dma_id = XPAR_AXIDMA_0_DEVICE_ID;
-static u32 buf_re = port(2);
+#define buf_re      _port[2]
+#define buf_isempty _port[23]
+#define buf_isfull  _port[22]
+#define buf_rdata   _port[21]
 
+#define DDR_BASE_ADDR XPAR_PS7_DDR_0_S_AXI_BASEADDR
 #ifndef DDR_BASE_ADDR
 #warning CHECK FOR THE VALID DDR ADDRESS IN XPARAMETERS.H, \
      DEFAULT SET TO 0x01000000
@@ -168,11 +172,18 @@ void print_mem(void)
     mem[mem_addr] = mem_wdata;
 }
 
-void print_buf(u32 re)
+void print_buf(void)
 {
+  if (buf_re)
+    buf_rdata = _port[21];
+
   printf("buf: {\n");
-  printf("    buf_re:   %8lx,\n", re);
-  printf("    buf_data: %8lx,\n", (u32)0x0);
+  printf("    buf_re:      %8lx,\n", buf_re);
+  printf("    buf_isempty: %8lx,\n", buf_isempty);
+  printf("    buf_isfull:  %8lx,\n", buf_isfull);
+  printf("    buf_rdata:   %8lx,\n", buf_rdata);
+  printf("    buf_wptr:    %8lx,\n", _port[17]);
+  printf("    buf_rptr:    %8lx,\n", _port[16]);
   printf("}\n");
 }
 
@@ -188,7 +199,7 @@ void probe(void)
     printf("time: %5d\n", t);
     print_reg();
     print_mem();
-    print_buf(0x0);
+    print_buf();
 
     n = getchar();
     // if (t != 0 && n != 13)
@@ -275,19 +286,19 @@ test test_s_axi_stream(void)
   u32 value;
 
   // Flush the SrcBuffer before the DMA transfer, in case the Data Cache is enabled
-  Xil_DCacheFlushRange((UINTPTR)src, BUF_WIDTH);
+  Xil_DCacheFlushRange((UINTPTR)src, sizeof(u32)*BUF_WIDTH);
 
-  value = 12;
+  value = 0x12;
 
   for (i = 0; i < BUF_WIDTH; i++) {
-      src[i] = value;
+      src[i] = 0;
       value  = value + 1;
   }
 
   init_reg();
 
-  for (i = sizeof(u32); i < BUF_WIDTH; i += sizeof(u32)) {
-    status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, i, XAXIDMA_DMA_TO_DEVICE);
+  for (i = 1; i <= BUF_WIDTH; i++) {
+    status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, sizeof(u32)*i, XAXIDMA_DMA_TO_DEVICE);
     assert_not(status != XST_SUCCESS, "Transfer failed");
 
     XTime_GetTime(&begin);
@@ -300,8 +311,11 @@ test test_s_axi_stream(void)
     // Clear written data by reading
     // port(2): buf_re
     for (int j = 0; j < i; j++) {
-      Xil_Out32(buf_re, 0x1);
-      Xil_Out32(buf_re, 0x0);
+      buf_re = 0x1;
+      buf_re = 0x0;
+      // TODO: read value is incorrect
+      _port[3] = j;
+      printf("src[%d]: %lx, mem[%d]; %lx\n", j, src[j], _port[17], _port[16]);
     }
   }
 
@@ -321,6 +335,8 @@ int main(void)
 
   test_s_axi_lite();
   test_s_axi();
+  printf("%d\n", XST_SUCCESS);
+  printf("%d\n", XAxiDma_Selftest(&dma));
   test_s_axi_stream();
 
   puts("###  end  ##################################################");

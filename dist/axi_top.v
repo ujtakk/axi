@@ -43,7 +43,6 @@
       "mem_rdata"
       "buf_we"
       "buf_re"
-      "buf_reset"
       "buf_wdata"
       "buf_isempty"
       "buf_isfull"
@@ -309,7 +308,6 @@ module axi_top(/*AUTOARG*/
   /*o*/ wire [DWIDTH-1:0]   mem_rdata;
   /*i*/ wire                buf_we;
   /*i*/ wire                buf_re;
-  /*i*/ wire                buf_reset;
   /*i*/ wire [DWIDTH-1:0]   buf_wdata;
   /*o*/ wire                buf_isempty;
   /*o*/ wire                buf_isfull;
@@ -323,7 +321,7 @@ module axi_top(/*AUTOARG*/
   assign req_m_axi_lite = port0[0];
   assign req_m_axi = port1[0];
   assign buf_re = port2[0];
-  assign buf_reset = port3[0];
+  assign probe0 = port3;
   // assign = port4;
   // assign = port5;
   // assign = port6;
@@ -735,23 +733,20 @@ module axi_top(/*AUTOARG*/
   /* buffer AUTO_TEMPLATE (
       .clk      (s_axi_stream_aclk),
       .xrst     (s_axi_stream_aresetn),
-      .wptr_probe(probe0),
-      .rptr_probe(probe1),
   ); */
   buffer buffer_inst(/*AUTOINST*/
 		     // Outputs
 		     .buf_isempty	(buf_isempty),
 		     .buf_isfull	(buf_isfull),
 		     .buf_rdata		(buf_rdata[DWIDTH-1:0]),
-		     .wptr_probe	(probe0),		 // Templated
-		     .rptr_probe	(probe1),		 // Templated
+		     .probe1		(probe1[DWIDTH-1:0]),
 		     // Inputs
 		     .clk		(s_axi_stream_aclk),	 // Templated
 		     .xrst		(s_axi_stream_aresetn),	 // Templated
 		     .buf_we		(buf_we),
 		     .buf_re		(buf_re),
 		     .buf_wdata		(buf_wdata[DWIDTH-1:0]),
-		     .buf_reset		(buf_reset));
+		     .probe0		(probe0[BUFSIZE-1:0]));
 
   /* m_axi_stream AUTO_TEMPLATE (
     .clk    (m_axi_stream_aclk),
