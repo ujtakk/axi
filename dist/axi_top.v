@@ -50,6 +50,7 @@
       "req_m_axi_lite"
       "ack_m_axi_lite"
       "err_m_axi_lite"
+      "ddr_baseaddr"
       "req_m_axi"
       "ack_m_axi"
       "err_m_axi"
@@ -199,17 +200,17 @@ module axi_top(/*AUTOARG*/
   output [1:0]        s_axi_lite_rresp;
   output              s_axi_lite_rvalid;
 
-  output [REG_WIDTH-1:0]  m_axi_lite_awaddr;
-  output [2:0]            m_axi_lite_awprot;
-  output                  m_axi_lite_awvalid;
-  output [DWIDTH-1:0]     m_axi_lite_wdata;
-  output [DWIDTH/8-1:0]   m_axi_lite_wstrb;
-  output                  m_axi_lite_wvalid;
-  output                  m_axi_lite_bready;
-  output [REG_WIDTH-1:0]  m_axi_lite_araddr;
-  output [2:0]            m_axi_lite_arprot;
-  output                  m_axi_lite_arvalid;
-  output                  m_axi_lite_rready;
+  output [DWIDTH-1:0]   m_axi_lite_awaddr;
+  output [2:0]          m_axi_lite_awprot;
+  output                m_axi_lite_awvalid;
+  output [DWIDTH-1:0]   m_axi_lite_wdata;
+  output [DWIDTH/8-1:0] m_axi_lite_wstrb;
+  output                m_axi_lite_wvalid;
+  output                m_axi_lite_bready;
+  output [DWIDTH-1:0]   m_axi_lite_araddr;
+  output [2:0]          m_axi_lite_arprot;
+  output                m_axi_lite_arvalid;
+  output                m_axi_lite_rready;
 
   output                    s_axi_awready;
   output                    s_axi_wready;
@@ -265,7 +266,7 @@ module axi_top(/*AUTOARG*/
   /*AUTOWIRE*/
   wire req_m_axi_lite;
   wire ack_m_axi_lite;
-  wire err_m_axi_lite;
+  wire [3:0] err_m_axi_lite;
   wire req_m_axi;
   wire ack_m_axi;
   wire err_m_axi;
@@ -312,6 +313,7 @@ module axi_top(/*AUTOARG*/
   /*o*/ wire                buf_isempty;
   /*o*/ wire                buf_isfull;
   /*o*/ wire [DWIDTH-1:0]   buf_rdata;
+        wire [DWIDTH-1:0]   ddr_baseaddr;
   wire [DWIDTH-1:0]   probe0;
   wire [DWIDTH-1:0]   probe1;
 
@@ -321,7 +323,7 @@ module axi_top(/*AUTOARG*/
   assign req_m_axi_lite = port0[0];
   assign req_m_axi = port1[0];
   assign buf_re = port2[0];
-  assign probe0 = port3;
+  assign ddr_baseaddr = port3;
   // assign = port4;
   // assign = port5;
   // assign = port6;
@@ -336,22 +338,22 @@ module axi_top(/*AUTOARG*/
   // assign = port15;
 
   // Output ports
-  assign port31 = s_axi_stream_tready;
-  assign port30 = s_axi_stream_tdata;
-  assign port29 = s_axi_stream_tstrb;
-  assign port28 = s_axi_stream_tlast;
-  assign port27 = s_axi_stream_tvalid;
-  assign port26 = buf_we;
-  assign port25 = buf_re;
-  assign port24 = buf_wdata;
-  assign port23 = buf_isempty;
-  assign port22 = buf_isfull;
-  assign port21 = buf_rdata;
-  assign port20 = 0;
-  assign port19 = 0;
-  assign port18 = 0;
-  assign port17 = probe0;
-  assign port16 = probe1;
+  assign port31 = m_axi_lite_awvalid;
+  assign port30 = m_axi_lite_awready;
+  assign port29 = m_axi_lite_awaddr;
+  assign port28 = m_axi_lite_wvalid;
+  assign port27 = m_axi_lite_wready;
+  assign port26 = m_axi_lite_wdata;
+  assign port25 = m_axi_lite_bvalid;
+  assign port24 = m_axi_lite_bready;
+  assign port23 = m_axi_lite_arvalid;
+  assign port22 = m_axi_lite_arready;
+  assign port21 = m_axi_lite_araddr;
+  assign port20 = m_axi_lite_rvalid;
+  assign port19 = m_axi_lite_rready;
+  assign port18 = m_axi_lite_rdata;
+  assign port17 = err_m_axi_lite;
+  assign port16 = ack_m_axi_lite;
 
   /* s_axi_lite AUTO_TEMPLATE (
       .clk      (s_axi_lite_aclk),
@@ -434,7 +436,7 @@ module axi_top(/*AUTOARG*/
 			     .port16		(port16[DWIDTH-1:0]));
 
   /* m_axi_lite AUTO_TEMPLATE (
-      .probe    (),
+      .probe    (probe0),
       .req      (req_m_axi_lite),
       .ack      (ack_m_axi_lite),
       .err      (err_m_axi_lite),
@@ -464,7 +466,7 @@ module axi_top(/*AUTOARG*/
 			     // Outputs
 			     .ack		(ack_m_axi_lite), // Templated
 			     .err		(err_m_axi_lite), // Templated
-			     .probe		(),		 // Templated
+			     .probe		(probe0),	 // Templated
 			     .awvalid		(m_axi_lite_awvalid), // Templated
 			     .awaddr		(m_axi_lite_awaddr), // Templated
 			     .awprot		(m_axi_lite_awprot), // Templated
@@ -487,7 +489,8 @@ module axi_top(/*AUTOARG*/
 			     .arready		(m_axi_lite_arready), // Templated
 			     .rdata		(m_axi_lite_rdata), // Templated
 			     .rresp		(m_axi_lite_rresp), // Templated
-			     .rvalid		(m_axi_lite_rvalid)); // Templated
+			     .rvalid		(m_axi_lite_rvalid), // Templated
+			     .ddr_baseaddr	(ddr_baseaddr[DWIDTH-1:0]));
 
   /* s_axi AUTO_TEMPLATE (
       .clk      (s_axi_aclk),

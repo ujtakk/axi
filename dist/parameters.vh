@@ -18,6 +18,9 @@ parameter WUSER_WIDTH  = 0;
 parameter RUSER_WIDTH  = 0;
 parameter BUSER_WIDTH  = 0;
 
+parameter DDR_BASEADDR = 1073741824;
+parameter DDR_OFFSET   = 4096;
+
 function integer clogb2 (input integer bit_depth);
   begin
     for(clogb2=0; bit_depth>0; clogb2=clogb2+1)

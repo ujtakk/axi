@@ -7,7 +7,7 @@ module m_axi_lite(/*AUTOARG*/
    bready, arvalid, araddr, arprot, rready,
    // Inputs
    clk, xrst, req, awready, wready, bresp, bvalid, arready, rdata,
-   rresp, rvalid
+   rresp, rvalid, ddr_baseaddr
    );
 `include "parameters.vh"
 
@@ -32,21 +32,22 @@ module m_axi_lite(/*AUTOARG*/
   input [DWIDTH-1:0]  rdata;
   input [1:0]         rresp;
   input               rvalid;
+  input [DWIDTH-1:0]  ddr_baseaddr;
 
   /*AUTOOUTPUT*/
   output                  ack;
-  output                  err;
+  output [3:0]            err;
   output [DWIDTH-1:0]     probe;
 
   output                  awvalid;
-  output [REG_WIDTH-1:0]  awaddr;
+  output [DWIDTH-1:0]     awaddr;
   output [2:0]            awprot;
   output                  wvalid;
   output [DWIDTH-1:0]     wdata;
   output [DWIDTH/8-1:0]   wstrb;
   output                  bready;
   output                  arvalid;
-  output [REG_WIDTH-1:0]  araddr;
+  output [DWIDTH-1:0]     araddr;
   output [2:0]            arprot;
   output                  rready;
 
@@ -67,7 +68,7 @@ module m_axi_lite(/*AUTOARG*/
   reg [1:0]         r_state;
   reg               r_req;
   reg               r_ack;
-  reg               r_err;
+  reg [3:0]         r_err;
   reg               r_awvalid;
   reg               r_awaddr;
   reg               r_wvalid;
@@ -98,8 +99,8 @@ module m_axi_lite(/*AUTOARG*/
   assign s_read_end  = r_last_read  && r_rready && rvalid;
   assign s_comp_end  = r_state == S_COMP;
 
-  assign last_write = r_write_idx == TXN_NUM && awready;
-  assign last_read  = r_read_idx == TXN_NUM && arready;
+  assign last_write = r_write_idx == TXN_NUM-1 && awready;
+  assign last_read  = r_read_idx == TXN_NUM-1 && arready;
 
   assign not_writing = !r_last_write && !r_write_single && !r_write_issued;
   assign not_reading = !r_last_read && !r_read_single && !r_read_issued;
@@ -141,7 +142,7 @@ module m_axi_lite(/*AUTOARG*/
 
         S_READ:
           if (s_read_end)
-            r_state <= S_READ;
+            r_state <= S_COMP;
           else
             if (!r_arvalid && !rvalid && not_reading) begin
               r_read_issued <= 1;
@@ -173,7 +174,7 @@ module m_axi_lite(/*AUTOARG*/
       r_last_write <= 0;
     else if (req_pulse)
       r_last_write <= 0;
-    else if (r_write_idx == TXN_NUM && awready)
+    else if (r_write_idx == TXN_NUM-1 && awready)
       r_last_write <= 1;
 
   always @(posedge clk)
@@ -189,7 +190,7 @@ module m_axi_lite(/*AUTOARG*/
       r_last_read <= 0;
     else if (req_pulse)
       r_last_read <= 0;
-    else if (r_read_idx == TXN_NUM && arready)
+    else if (r_read_idx == TXN_NUM-1 && arready)
       r_last_read <= 1;
 
 //==========================================================
@@ -214,6 +215,8 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_awaddr <= 0;
+    else if (req_pulse)
+      r_awaddr <= ddr_baseaddr;
     else if (awready && r_awvalid)
       r_awaddr <= r_awaddr + 4;
 
@@ -238,6 +241,8 @@ module m_axi_lite(/*AUTOARG*/
   // NOTE: User Logic
   always @(posedge clk)
     if (!xrst)
+      r_wdata <= 0;
+    else if (req_pulse)
       r_wdata <= 0;
     else if (wready && r_wvalid)
       r_wdata <= r_wdata + r_write_idx;
@@ -265,7 +270,8 @@ module m_axi_lite(/*AUTOARG*/
 
   assign arvalid = r_arvalid;
   assign araddr  = r_araddr;
-  assign arprot  = 3'b001;
+  // assign arprot  = 3'b001;
+  assign arprot  = 3'b000;
 
   always @(posedge clk)
     if (!xrst)
@@ -281,6 +287,8 @@ module m_axi_lite(/*AUTOARG*/
   always @(posedge clk)
     if (!xrst)
       r_araddr <= 0;
+    else if (req_pulse)
+      r_araddr <= ddr_baseaddr;
     else if (arready && r_arvalid)
       r_araddr <= r_araddr + 4;
 
@@ -325,11 +333,13 @@ module m_axi_lite(/*AUTOARG*/
     else if (req_pulse)
       r_err <= 0;
     else if (err_diff || err_wresp || err_rresp)
-      r_err <= 1;
+      r_err <= {err_diff, err_wresp, err_rresp, 1'b1};
 
   // NOTE: User Logic
   always @(posedge clk)
     if (!xrst)
+      r_exp_rdata <= 0;
+    else if (req_pulse)
       r_exp_rdata <= 0;
     else if (rvalid && r_rready)
       r_exp_rdata <= r_exp_rdata + r_read_idx;

@@ -115,10 +115,10 @@ module test_axi_top;
   wire [AWUSER_WIDTH-1:0] m_axi_awuser;		// From dut0 of axi_top.v
   wire			m_axi_awvalid;		// From dut0 of axi_top.v
   wire			m_axi_bready;		// From dut0 of axi_top.v
-  wire [REG_WIDTH-1:0]	m_axi_lite_araddr;	// From dut0 of axi_top.v
+  wire [DWIDTH-1:0]	m_axi_lite_araddr;	// From dut0 of axi_top.v
   wire [2:0]		m_axi_lite_arprot;	// From dut0 of axi_top.v
   wire			m_axi_lite_arvalid;	// From dut0 of axi_top.v
-  wire [REG_WIDTH-1:0]	m_axi_lite_awaddr;	// From dut0 of axi_top.v
+  wire [DWIDTH-1:0]	m_axi_lite_awaddr;	// From dut0 of axi_top.v
   wire [2:0]		m_axi_lite_awprot;	// From dut0 of axi_top.v
   wire			m_axi_lite_awvalid;	// From dut0 of axi_top.v
   wire			m_axi_lite_bready;	// From dut0 of axi_top.v
@@ -200,14 +200,14 @@ module test_axi_top;
 	       .s_axi_lite_rdata	(s_axi_lite_rdata[DWIDTH-1:0]),
 	       .s_axi_lite_rresp	(s_axi_lite_rresp[1:0]),
 	       .s_axi_lite_rvalid	(s_axi_lite_rvalid),
-	       .m_axi_lite_awaddr	(m_axi_lite_awaddr[REG_WIDTH-1:0]),
+	       .m_axi_lite_awaddr	(m_axi_lite_awaddr[DWIDTH-1:0]),
 	       .m_axi_lite_awprot	(m_axi_lite_awprot[2:0]),
 	       .m_axi_lite_awvalid	(m_axi_lite_awvalid),
 	       .m_axi_lite_wdata	(m_axi_lite_wdata[DWIDTH-1:0]),
 	       .m_axi_lite_wstrb	(m_axi_lite_wstrb[DWIDTH/8-1:0]),
 	       .m_axi_lite_wvalid	(m_axi_lite_wvalid),
 	       .m_axi_lite_bready	(m_axi_lite_bready),
-	       .m_axi_lite_araddr	(m_axi_lite_araddr[REG_WIDTH-1:0]),
+	       .m_axi_lite_araddr	(m_axi_lite_araddr[DWIDTH-1:0]),
 	       .m_axi_lite_arprot	(m_axi_lite_arprot[2:0]),
 	       .m_axi_lite_arvalid	(m_axi_lite_arvalid),
 	       .m_axi_lite_rready	(m_axi_lite_rready),

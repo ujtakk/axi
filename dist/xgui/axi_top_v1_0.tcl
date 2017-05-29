@@ -54,6 +54,24 @@ proc validate_PARAM_VALUE.BUSER_WIDTH { PARAM_VALUE.BUSER_WIDTH } {
 	return true
 }
 
+proc update_PARAM_VALUE.DDR_BASEADDR { PARAM_VALUE.DDR_BASEADDR } {
+	# Procedure called to update DDR_BASEADDR when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DDR_BASEADDR { PARAM_VALUE.DDR_BASEADDR } {
+	# Procedure called to validate DDR_BASEADDR
+	return true
+}
+
+proc update_PARAM_VALUE.DDR_OFFSET { PARAM_VALUE.DDR_OFFSET } {
+	# Procedure called to update DDR_OFFSET when any of the dependent parameters in the arguments change
+}
+
+proc validate_PARAM_VALUE.DDR_OFFSET { PARAM_VALUE.DDR_OFFSET } {
+	# Procedure called to validate DDR_OFFSET
+	return true
+}
+
 proc update_PARAM_VALUE.DWIDTH { PARAM_VALUE.DWIDTH } {
 	# Procedure called to update DWIDTH when any of the dependent parameters in the arguments change
 }
@@ -213,5 +231,15 @@ proc update_MODELPARAM_VALUE.REG_WIDTH { MODELPARAM_VALUE.REG_WIDTH PARAM_VALUE.
 proc update_MODELPARAM_VALUE.MEM_WIDTH { MODELPARAM_VALUE.MEM_WIDTH PARAM_VALUE.MEM_WIDTH } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
 	set_property value [get_property value ${PARAM_VALUE.MEM_WIDTH}] ${MODELPARAM_VALUE.MEM_WIDTH}
+}
+
+proc update_MODELPARAM_VALUE.DDR_BASEADDR { MODELPARAM_VALUE.DDR_BASEADDR PARAM_VALUE.DDR_BASEADDR } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DDR_BASEADDR}] ${MODELPARAM_VALUE.DDR_BASEADDR}
+}
+
+proc update_MODELPARAM_VALUE.DDR_OFFSET { MODELPARAM_VALUE.DDR_OFFSET PARAM_VALUE.DDR_OFFSET } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.DDR_OFFSET}] ${MODELPARAM_VALUE.DDR_OFFSET}
 }
 

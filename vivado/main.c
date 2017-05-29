@@ -149,9 +149,9 @@ void print_reg(void)
   for (i = 0; i < 32; i++) {
     if (i % 4 == 0) printf("    ");
     if (i < 10)
-      printf("port%1d:  %8lx, ", i, Xil_In32(port(i)));
+      printf("port%1d:  %4lx, ", i, Xil_In32(port(i)));
     else
-      printf("port%2d: %8lx, ", i, Xil_In32(port(i)));
+      printf("port%2d: %4lx, ", i, Xil_In32(port(i)));
     if (i % 4 == 3) printf("\n");
   }
   printf("}\n");
@@ -216,6 +216,8 @@ test test_s_axi_lite(void)
   int i;
   u32 src[REG_WIDTH/2], dst[REG_WIDTH/2];
 
+  init_reg();
+
   for (i = 0; i < REG_WIDTH/2; i++)
     src[i] = i * i;
 
@@ -251,6 +253,8 @@ test test_s_axi(void)
   int i;
   u32 src[MEM_WIDTH], dst[MEM_WIDTH];
 
+  init_mem();
+
   for (i = 0; i < MEM_WIDTH; i++)
     src[i] = i * i;
 
@@ -285,6 +289,9 @@ test test_s_axi_stream(void)
   u32 *src = (u32 *)TX_BUFFER_BASE;
   u32 value;
 
+  init_reg();
+  init_buf();
+
   // Flush the SrcBuffer before the DMA transfer, in case the Data Cache is enabled
   Xil_DCacheFlushRange((UINTPTR)src, sizeof(u32)*BUF_WIDTH);
 
@@ -314,10 +321,37 @@ test test_s_axi_stream(void)
       buf_re = 0x1;
       buf_re = 0x0;
       // TODO: read value is incorrect
-      _port[3] = j;
-      printf("src[%d]: %lx, mem[%d]; %lx\n", j, src[j], _port[17], _port[16]);
+      // _port[3] = j;
+      // printf("src[%d]: %lx, mem[%d]; %lx\n", j, src[j], _port[17], _port[16]);
     }
   }
+
+  test_return();
+}
+
+test test_m_axi_lite(void)
+{
+  // u32 src[100] = {0};
+  volatile u32 *src = (volatile u32 *)0x10000000;
+
+  init_reg();
+
+  printf("%p\n", src);
+  printf("%p\n", &src);
+
+  for (int i = 0; i < 4; i++)
+    printf("%d: %lx\n", i, src[i]);
+
+  print_reg();
+  Xil_Out32(port(3), src);
+  Xil_Out32(port(0), 0x1);
+  print_reg();
+  Xil_Out32(port(0), 0x0);
+  print_reg();
+  sleep(1);
+  Xil_DCacheFlushRange((UINTPTR)src, sizeof(u32)*100);
+  for (int i = 0; i < 4; i++)
+    printf("%d: %lx\n", i, src[i]);
 
   test_return();
 }
@@ -329,15 +363,11 @@ int main(void)
 
   puts("### start ##################################################");
 
-  init_reg();
-  init_mem();
-  init_buf();
-
   test_s_axi_lite();
   test_s_axi();
-  printf("%d\n", XST_SUCCESS);
-  printf("%d\n", XAxiDma_Selftest(&dma));
   test_s_axi_stream();
+
+  test_m_axi_lite();
 
   puts("###  end  ##################################################");
 
