@@ -12,7 +12,7 @@ module m_axi_lite(/*AUTOARG*/
 `include "parameters.vh"
 
   parameter TXN_NUM = 4;
-  parameter TXN_BIT = clogb2(TXN_NUM);
+  parameter TXN_BIT = clogb2(TXN_NUM) + 1;
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1,
@@ -56,8 +56,6 @@ module m_axi_lite(/*AUTOARG*/
   wire s_write_end;
   wire s_read_end;
   wire s_comp_end;
-  wire last_write;
-  wire last_read;
   wire not_writing;
   wire not_reading;
   wire err_wresp;
@@ -70,12 +68,12 @@ module m_axi_lite(/*AUTOARG*/
   reg               r_ack;
   reg [3:0]         r_err;
   reg               r_awvalid;
-  reg               r_awaddr;
+  reg [DWIDTH-1:0]  r_awaddr;
   reg               r_wvalid;
-  reg               r_wdata;
+  reg [DWIDTH-1:0]  r_wdata;
   reg               r_bready;
   reg               r_arvalid;
-  reg               r_araddr;
+  reg [DWIDTH-1:0]  r_araddr;
   reg               r_rready;
   reg               r_write_single;
   reg               r_write_issued;
@@ -98,9 +96,6 @@ module m_axi_lite(/*AUTOARG*/
   assign s_write_end = r_last_write && r_bready && bvalid;
   assign s_read_end  = r_last_read  && r_rready && rvalid;
   assign s_comp_end  = r_state == S_COMP;
-
-  assign last_write = r_write_idx == TXN_NUM-1 && awready;
-  assign last_read  = r_read_idx == TXN_NUM-1 && arready;
 
   assign not_writing = !r_last_write && !r_write_single && !r_write_issued;
   assign not_reading = !r_last_read && !r_read_single && !r_read_issued;
@@ -174,7 +169,7 @@ module m_axi_lite(/*AUTOARG*/
       r_last_write <= 0;
     else if (req_pulse)
       r_last_write <= 0;
-    else if (r_write_idx == TXN_NUM-1 && awready)
+    else if (r_write_idx == TXN_NUM && awready)
       r_last_write <= 1;
 
   always @(posedge clk)
@@ -190,7 +185,7 @@ module m_axi_lite(/*AUTOARG*/
       r_last_read <= 0;
     else if (req_pulse)
       r_last_read <= 0;
-    else if (r_read_idx == TXN_NUM-1 && arready)
+    else if (r_read_idx == TXN_NUM && arready)
       r_last_read <= 1;
 
 //==========================================================
@@ -214,9 +209,11 @@ module m_axi_lite(/*AUTOARG*/
   // NOTE: User Logic
   always @(posedge clk)
     if (!xrst)
-      r_awaddr <= 0;
+      // r_awaddr <= 0;
+      r_awaddr <= 32'h1111_1111;
     else if (req_pulse)
-      r_awaddr <= ddr_baseaddr;
+      // r_awaddr <= ddr_baseaddr;
+      r_awaddr <= 32'h1111_1111;
     else if (awready && r_awvalid)
       r_awaddr <= r_awaddr + 4;
 
@@ -270,7 +267,6 @@ module m_axi_lite(/*AUTOARG*/
 
   assign arvalid = r_arvalid;
   assign araddr  = r_araddr;
-  // assign arprot  = 3'b001;
   assign arprot  = 3'b000;
 
   always @(posedge clk)
@@ -286,9 +282,11 @@ module m_axi_lite(/*AUTOARG*/
   // NOTE: User Logic
   always @(posedge clk)
     if (!xrst)
-      r_araddr <= 0;
+      // r_araddr <= 0;
+      r_araddr <= 32'h1111_1111;
     else if (req_pulse)
-      r_araddr <= ddr_baseaddr;
+      // r_araddr <= ddr_baseaddr;
+      r_araddr <= 32'h1111_1111;
     else if (arready && r_arvalid)
       r_araddr <= r_araddr + 4;
 

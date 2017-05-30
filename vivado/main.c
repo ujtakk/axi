@@ -149,9 +149,9 @@ void print_reg(void)
   for (i = 0; i < 32; i++) {
     if (i % 4 == 0) printf("    ");
     if (i < 10)
-      printf("port%1d:  %4lx, ", i, Xil_In32(port(i)));
+      printf("port%1d:  %8lx, ", i, Xil_In32(port(i)));
     else
-      printf("port%2d: %4lx, ", i, Xil_In32(port(i)));
+      printf("port%2d: %8lx, ", i, Xil_In32(port(i)));
     if (i % 4 == 3) printf("\n");
   }
   printf("}\n");

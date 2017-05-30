@@ -3,6 +3,7 @@
 # ref: http://www.fpgadeveloper.com/2016/11/tcl-automation-tips-for-vivado-xilinx-sdk.html
 
 set origin_dir .
+set jobs 24
 set proj_name [lindex $argv 0]
 
 open_project $origin_dir/ip/ip.xpr
@@ -30,7 +31,7 @@ export_ip_user_files \
   -no_script -sync -force -quiet
 create_ip_run [get_files -of_objects [get_fileset sources_1] \
   $origin_dir/$proj_name/$proj_name.srcs/sources_1/bd/design_1/design_1.bd]
-launch_runs -jobs 24 { \
+launch_runs -jobs $jobs { \
   design_1_processing_system7_0_0_synth_1 \
   design_1_axi_dma_0_0_synth_1 \
   design_1_axi_top_0_0_synth_1 \
@@ -65,7 +66,7 @@ export_simulation \
     {riviera=$origin_dir/$proj_name/$proj_name.cache/compile_simlib/riviera} \
   ] \
   -use_ip_compiled_libs -force -quiet
-launch_runs impl_1 -to_step write_bitstream -jobs 24
+launch_runs impl_1 -to_step write_bitstream -jobs $jobs
 wait_on_run impl_1
 
 # update_ip_catalog -rebuild -scan_changes
