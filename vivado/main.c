@@ -351,6 +351,9 @@ test test_m_axi_lite(void)
     assert_eq(src[i], acc);
   }
 
+  for (int i = -16; i < 16; i++)
+    printf("%d: %8lx\n", i, src[i]);
+
   Xil_DCacheEnable();
 
   test_return();
@@ -359,7 +362,7 @@ test test_m_axi_lite(void)
 test test_m_axi(void)
 {
   // u32 src[100] = {0};
-  volatile u32 *src = (volatile u32 *)0x12000000;
+  volatile u32 *src = (volatile u32 *)0x11ffff00;
 
   Xil_DCacheDisable();
 
@@ -371,15 +374,16 @@ test test_m_axi(void)
   for (int i = 0; i < 4; i++)
     src[i] = 0;
 
-  for (int i = 0; i < 4; i++)
-    printf("%d: %8lx\n", i, src[i]);
+  // for (int i = 0; i < 4; i++)
+  //   printf("%d: %8lx\n", i, src[i]);
 
   Xil_Out32(port(4), src);
+  print_reg();
   Xil_Out32(port(1), 0x1);
   Xil_Out32(port(1), 0x0);
   sleep(1);
 
-  for (int i = 0; i < 4; i++)
+  for (int i = -16; i < 16; i++)
     printf("%d: %8lx\n", i, src[i]);
 
   Xil_DCacheEnable();

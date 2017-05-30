@@ -195,12 +195,12 @@ module axi_top(/*AUTOARG*/);
   output                m_axi_stream_tlast;
 
   /*AUTOWIRE*/
-  wire req_m_axi_lite;
-  wire ack_m_axi_lite;
-  wire [3:0] err_m_axi_lite;
-  wire req_m_axi;
-  wire ack_m_axi;
-  wire err_m_axi;
+  wire        req_m_axi_lite;
+  wire        ack_m_axi_lite;
+  wire [3:0]  err_m_axi_lite;
+  wire        req_m_axi;
+  wire        ack_m_axi;
+  wire [3:0]  err_m_axi;
 
   <%- $port.times do |i| -%>
   wire [DWIDTH-1:0]   port<%=i%>;

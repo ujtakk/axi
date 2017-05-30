@@ -3,8 +3,8 @@
 
 module m_axi_lite(/*AUTOARG*/
    // Outputs
-   ack, err, probe, awvalid, awaddr, awprot, wvalid, wdata, wstrb,
-   bready, arvalid, araddr, arprot, rready,
+   ack, err, awvalid, awaddr, awprot, wvalid, wdata, wstrb, bready,
+   arvalid, araddr, arprot, rready,
    // Inputs
    clk, xrst, req, awready, wready, bresp, bvalid, arready, rdata,
    rresp, rvalid, ddr_base
@@ -37,7 +37,6 @@ module m_axi_lite(/*AUTOARG*/
   /*AUTOOUTPUT*/
   output                  ack;
   output [3:0]            err;
-  output [DWIDTH-1:0]     probe;
 
   output                  awvalid;
   output [DWIDTH-1:0]     awaddr;
@@ -88,8 +87,6 @@ module m_axi_lite(/*AUTOARG*/
 //==========================================================
 // core control
 //==========================================================
-
-  assign probe = {30'h0, r_state};
 
   assign req_pulse = req && !r_req;
 
@@ -213,7 +210,7 @@ module m_axi_lite(/*AUTOARG*/
     else if (req_pulse)
       r_awaddr <= ddr_base;
     else if (awready && r_awvalid)
-      r_awaddr <= r_awaddr + 4;
+      r_awaddr <= r_awaddr + DWIDTH/8;
 
 //==========================================================
 // write data control
@@ -284,7 +281,7 @@ module m_axi_lite(/*AUTOARG*/
     else if (req_pulse)
       r_araddr <= ddr_base;
     else if (arready && r_arvalid)
-      r_araddr <= r_araddr + 4;
+      r_araddr <= r_araddr + DWIDTH/8;
 
 //==========================================================
 // read data control

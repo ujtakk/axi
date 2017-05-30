@@ -3,10 +3,10 @@
 
 module m_axi(/*AUTOARG*/
    // Outputs
-   ack, err, probe, awvalid, awid, awaddr, awlen, awsize, awburst,
-   awlock, awcache, awprot, awqos, awuser, wvalid, wdata, wstrb,
-   wlast, wuser, bready, arvalid, arid, araddr, arlen, arsize,
-   arburst, arlock, arcache, arprot, arqos, aruser, rready,
+   ack, err, awvalid, awid, awaddr, awlen, awsize, awburst, awlock,
+   awcache, awprot, awqos, awuser, wvalid, wdata, wstrb, wlast, wuser,
+   bready, arvalid, arid, araddr, arlen, arsize, arburst, arlock,
+   arcache, arprot, arqos, aruser, rready,
    // Inputs
    clk, xrst, req, awready, wready, bid, bresp, buser, bvalid,
    arready, rid, rdata, rresp, rlast, ruser, rvalid, ddr_base
@@ -15,14 +15,9 @@ module m_axi(/*AUTOARG*/
 
   parameter BURST_LEN     = 256;
   parameter TXN_NUM       = clogb2(BURST_LEN-1);
-  /*
-  // Burst length for transactions, in C_M_AXI_DATA_WIDTHs.
-  // Non-2^n lengths will eventually cause bursts across 4K address boundaries.
-  localparam integer C_MASTER_LENGTH = 12;
-  // total number of burst transfers is master length divided by burst length and burst size
-  localparam integer C_NO_BURSTS_REQ = C_MASTER_LENGTH-clogb2((C_M_AXI_BURST_LEN*C_M_AXI_DATA_WIDTH/8)-1);
-  */
-  parameter NO_BURSTS_REQ = 12 - clogb2(BURST_LEN*DWIDTH/8-1);
+  parameter TOTAL_LEN     = 10;
+  parameter NO_BURSTS_REQ = TOTAL_LEN - clogb2(BURST_LEN-1);
+  // parameter NO_BURSTS_REQ = TOTAL_LEN - clogb2(BURST_LEN*DWIDTH/8-1);
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1,
@@ -50,8 +45,7 @@ module m_axi(/*AUTOARG*/
 
   /*AUTOOUTPUT*/
   output                    ack;
-  output                    err;
-  output [DWIDTH-1:0]       probe;
+  output [3:0]              err;
 
   output                    awvalid;
   output [ID_WIDTH-1:0]     awid;
@@ -84,22 +78,22 @@ module m_axi(/*AUTOARG*/
   output                    rready;
 
   /*AUTOWIRE*/
-  wire req_pulse;
-  wire s_write_end;
-  wire s_read_end;
-  wire s_comp_end;
-  wire err_wresp;
-  wire err_rresp;
-  wire err_diff;
-  wire wnext;
-  wire rnext;
-  wire [TXN_NUM+2-1:0] burst_size;
+  wire                  req_pulse;
+  wire                  s_write_end;
+  wire                  s_read_end;
+  wire                  s_comp_end;
+  wire                  err_wresp;
+  wire                  err_rresp;
+  wire                  err_diff;
+  wire                  wnext;
+  wire                  rnext;
+  wire [TXN_NUM+2-1:0]  burst_size;
 
   /*AUTOREG*/
   reg [1:0]               r_state;
   reg                     r_req;
   reg                     r_ack;
-  reg                     r_err;
+  reg [3:0]               r_err;
   reg [ID_WIDTH-1:0]      r_awid;
   reg [DWIDTH-1:0]        r_awaddr;
   reg [7:0]               r_awlen;
@@ -129,8 +123,6 @@ module m_axi(/*AUTOARG*/
   reg [ARUSER_WIDTH-1:0]  r_aruser;
   reg                     r_arvalid;
   reg                     r_rready;
-  reg [NO_BURSTS_REQ:0]   r_write_burst_cnt;
-  reg [NO_BURSTS_REQ:0]   r_read_burst_cnt;
   reg [TXN_NUM:0]         r_write_idx;
   reg [TXN_NUM:0]         r_read_idx;
   reg                     r_write_single_burst;
@@ -142,8 +134,6 @@ module m_axi(/*AUTOARG*/
 //==========================================================
 // core control
 //==========================================================
-
-  assign probe = {30'h0, r_state};
 
   assign req_pulse = req && !r_req;
 
@@ -274,11 +264,12 @@ module m_axi(/*AUTOARG*/
 
   always @(posedge clk)
     if (!xrst)
-      r_wdata <= 0;
+      r_wdata <= 1;
     else if (req_pulse)
-      r_wdata <= 0;
+      r_wdata <= 1;
     else if (wnext)
-      r_wdata <= r_wdata + 1;
+      // r_wdata <= r_wdata + 1;
+      r_wdata <= 1;
 
   always @(posedge clk)
     if (!xrst)
@@ -406,7 +397,7 @@ module m_axi(/*AUTOARG*/
     else if (req_pulse)
       r_err <= 0;
     else if (err_diff || err_wresp || err_rresp)
-      r_err <= 1;
+      r_err <= {err_diff, err_wresp, err_rresp, 1'b1};
 
   always @(posedge clk)
     if (!xrst)
@@ -421,7 +412,7 @@ module m_axi(/*AUTOARG*/
       r_write_burst_cnt <= 0;
     else if (awready && r_awvalid) begin
       if (r_write_burst_cnt[NO_BURSTS_REQ] == 1'b0)
-        r_write_burst_cnt <= r_write_burst_cnt + 1;
+        r_write_burst_cnt <= r_write_burst_cnt + DWIDTH/8;
     end
 
   always @(posedge clk)
@@ -431,7 +422,7 @@ module m_axi(/*AUTOARG*/
       r_read_burst_cnt <= 0;
     else if (arready && r_arvalid) begin
       if (r_read_burst_cnt[NO_BURSTS_REQ] == 1'b0)
-        r_read_burst_cnt <= r_read_burst_cnt + 1;
+        r_read_burst_cnt <= r_read_burst_cnt + DWIDTH/8;
     end
 
 endmodule

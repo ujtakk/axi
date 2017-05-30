@@ -265,12 +265,12 @@ module axi_top(/*AUTOARG*/
   output                m_axi_stream_tlast;
 
   /*AUTOWIRE*/
-  wire req_m_axi_lite;
-  wire ack_m_axi_lite;
-  wire [3:0] err_m_axi_lite;
-  wire req_m_axi;
-  wire ack_m_axi;
-  wire err_m_axi;
+  wire        req_m_axi_lite;
+  wire        ack_m_axi_lite;
+  wire [3:0]  err_m_axi_lite;
+  wire        req_m_axi;
+  wire        ack_m_axi;
+  wire [3:0]  err_m_axi;
 
   wire [DWIDTH-1:0]   port0;
   wire [DWIDTH-1:0]   port1;
@@ -469,7 +469,6 @@ module axi_top(/*AUTOARG*/
 			     // Outputs
 			     .ack		(ack_m_axi_lite), // Templated
 			     .err		(err_m_axi_lite), // Templated
-			     .probe		(probe0),	 // Templated
 			     .awvalid		(m_axi_lite_awvalid), // Templated
 			     .awaddr		(m_axi_lite_awaddr), // Templated
 			     .awprot		(m_axi_lite_awprot), // Templated
@@ -666,7 +665,6 @@ module axi_top(/*AUTOARG*/
 		   // Outputs
 		   .ack			(ack_m_axi),		 // Templated
 		   .err			(err_m_axi),		 // Templated
-		   .probe		(),			 // Templated
 		   .awvalid		(m_axi_awvalid),	 // Templated
 		   .awid		(m_axi_awid),		 // Templated
 		   .awaddr		(m_axi_awaddr),		 // Templated
