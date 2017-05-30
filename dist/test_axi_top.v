@@ -92,7 +92,7 @@ module test_axi_top;
 
   /*AUTOWIRE*/
   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-  wire [MEM_WIDTH-1:0]	m_axi_araddr;		// From dut0 of axi_top.v
+  wire [DWIDTH-1:0]	m_axi_araddr;		// From dut0 of axi_top.v
   wire [1:0]		m_axi_arburst;		// From dut0 of axi_top.v
   wire [3:0]		m_axi_arcache;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	m_axi_arid;		// From dut0 of axi_top.v
@@ -103,7 +103,7 @@ module test_axi_top;
   wire [2:0]		m_axi_arsize;		// From dut0 of axi_top.v
   wire [ARUSER_WIDTH-1:0] m_axi_aruser;		// From dut0 of axi_top.v
   wire			m_axi_arvalid;		// From dut0 of axi_top.v
-  wire [MEM_WIDTH-1:0]	m_axi_awaddr;		// From dut0 of axi_top.v
+  wire [DWIDTH-1:0]	m_axi_awaddr;		// From dut0 of axi_top.v
   wire [1:0]		m_axi_awburst;		// From dut0 of axi_top.v
   wire [3:0]		m_axi_awcache;		// From dut0 of axi_top.v
   wire [ID_WIDTH-1:0]	m_axi_awid;		// From dut0 of axi_top.v
@@ -225,7 +225,7 @@ module test_axi_top;
 	       .s_axi_ruser		(s_axi_ruser[RUSER_WIDTH-1:0]),
 	       .s_axi_rvalid		(s_axi_rvalid),
 	       .m_axi_awid		(m_axi_awid[ID_WIDTH-1:0]),
-	       .m_axi_awaddr		(m_axi_awaddr[MEM_WIDTH-1:0]),
+	       .m_axi_awaddr		(m_axi_awaddr[DWIDTH-1:0]),
 	       .m_axi_awlen		(m_axi_awlen[7:0]),
 	       .m_axi_awsize		(m_axi_awsize[2:0]),
 	       .m_axi_awburst		(m_axi_awburst[1:0]),
@@ -242,7 +242,7 @@ module test_axi_top;
 	       .m_axi_wvalid		(m_axi_wvalid),
 	       .m_axi_bready		(m_axi_bready),
 	       .m_axi_arid		(m_axi_arid[ID_WIDTH-1:0]),
-	       .m_axi_araddr		(m_axi_araddr[MEM_WIDTH-1:0]),
+	       .m_axi_araddr		(m_axi_araddr[DWIDTH-1:0]),
 	       .m_axi_arlen		(m_axi_arlen[7:0]),
 	       .m_axi_arsize		(m_axi_arsize[2:0]),
 	       .m_axi_arburst		(m_axi_arburst[1:0]),

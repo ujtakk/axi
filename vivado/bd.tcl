@@ -39,18 +39,13 @@ connect_bd_net [get_bd_pins axi_dma_0/mm2s_introut] [get_bd_pins xlconcat_0/In0]
 connect_bd_net [get_bd_pins axi_dma_0/s2mm_introut] [get_bd_pins xlconcat_0/In1]
 connect_bd_net [get_bd_pins xlconcat_0/dout] [get_bd_pins processing_system7_0/IRQ_F2P]
 
-set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_top_0_m_axi_lite }]
-apply_bd_automation -rule xilinx.com:bd_rule:debug \
-  -dict [list \
-    [get_bd_intf_nets axi_top_0_m_axi_lite] \
-    {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
-  ]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_top_0_m_axi }]
+set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_mem_intercon_1_M00_AXI }]
 
-set_property HDL_ATTRIBUTE.DEBUG true [get_bd_intf_nets {axi_mem_intercon_M00_AXI }]
 apply_bd_automation -rule xilinx.com:bd_rule:debug \
   -dict [list \
-    [get_bd_intf_nets axi_mem_intercon_M00_AXI] \
-    {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets axi_top_0_m_axi] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
+    [get_bd_intf_nets axi_mem_intercon_1_M00_AXI] {AXI_R_ADDRESS "Data and Trigger" AXI_R_DATA "Data and Trigger" AXI_W_ADDRESS "Data and Trigger" AXI_W_DATA "Data and Trigger" AXI_W_RESPONSE "Data and Trigger" CLK_SRC "/processing_system7_0/FCLK_CLK0" SYSTEM_ILA "Auto" APC_EN "0" } \
   ]
 
 regenerate_bd_layout

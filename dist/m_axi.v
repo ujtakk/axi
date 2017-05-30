@@ -9,12 +9,19 @@ module m_axi(/*AUTOARG*/
    arburst, arlock, arcache, arprot, arqos, aruser, rready,
    // Inputs
    clk, xrst, req, awready, wready, bid, bresp, buser, bvalid,
-   arready, rid, rdata, rresp, rlast, ruser, rvalid
+   arready, rid, rdata, rresp, rlast, ruser, rvalid, ddr_base
    );
 `include "parameters.vh"
 
-  parameter BURST_LEN     = 16;
+  parameter BURST_LEN     = 256;
   parameter TXN_NUM       = clogb2(BURST_LEN-1);
+  /*
+  // Burst length for transactions, in C_M_AXI_DATA_WIDTHs.
+  // Non-2^n lengths will eventually cause bursts across 4K address boundaries.
+  localparam integer C_MASTER_LENGTH = 12;
+  // total number of burst transfers is master length divided by burst length and burst size
+  localparam integer C_NO_BURSTS_REQ = C_MASTER_LENGTH-clogb2((C_M_AXI_BURST_LEN*C_M_AXI_DATA_WIDTH/8)-1);
+  */
   parameter NO_BURSTS_REQ = 12 - clogb2(BURST_LEN*DWIDTH/8-1);
 
   localparam  S_IDLE  = 'd0,
@@ -39,6 +46,7 @@ module m_axi(/*AUTOARG*/
   input                   rlast;
   input [RUSER_WIDTH-1:0] ruser;
   input                   rvalid;
+  input [DWIDTH-1:0]      ddr_base;
 
   /*AUTOOUTPUT*/
   output                    ack;
@@ -47,7 +55,7 @@ module m_axi(/*AUTOARG*/
 
   output                    awvalid;
   output [ID_WIDTH-1:0]     awid;
-  output [MEM_WIDTH-1:0]    awaddr;
+  output [DWIDTH-1:0]       awaddr;
   output [7:0]              awlen;
   output [2:0]              awsize;
   output [1:0]              awburst;
@@ -64,7 +72,7 @@ module m_axi(/*AUTOARG*/
   output                    bready;
   output                    arvalid;
   output [ID_WIDTH-1:0]     arid;
-  output [MEM_WIDTH-1:0]    araddr;
+  output [DWIDTH-1:0]       araddr;
   output [7:0]              arlen;
   output [2:0]              arsize;
   output [1:0]              arburst;
@@ -93,7 +101,7 @@ module m_axi(/*AUTOARG*/
   reg                     r_ack;
   reg                     r_err;
   reg [ID_WIDTH-1:0]      r_awid;
-  reg [MEM_WIDTH-1:0]     r_awaddr;
+  reg [DWIDTH-1:0]        r_awaddr;
   reg [7:0]               r_awlen;
   reg [2:0]               r_awsize;
   reg [1:0]               r_awburst;
@@ -110,7 +118,7 @@ module m_axi(/*AUTOARG*/
   reg                     r_wvalid;
   reg                     r_bready;
   reg [ID_WIDTH-1:0]      r_arid;
-  reg [MEM_WIDTH-1:0]     r_araddr;
+  reg [DWIDTH-1:0]        r_araddr;
   reg [7:0]               r_arlen;
   reg [2:0]               r_arsize;
   reg [1:0]               r_arburst;
@@ -238,7 +246,7 @@ module m_axi(/*AUTOARG*/
     if (!xrst)
       r_awaddr <= 0;
     else if (req_pulse)
-      r_awaddr <= 0;
+      r_awaddr <= ddr_base;
     else if (awready && r_awvalid)
       r_awaddr <= r_awaddr + burst_size;
 
@@ -341,7 +349,7 @@ module m_axi(/*AUTOARG*/
     if (!xrst)
       r_araddr <= 0;
     else if (req_pulse)
-      r_araddr <= 0;
+      r_araddr <= ddr_base;
     else if (arready && r_arvalid)
       r_araddr <= r_araddr + burst_size;
 

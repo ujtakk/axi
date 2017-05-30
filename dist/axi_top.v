@@ -47,10 +47,11 @@
       "buf_isempty"
       "buf_isfull"
       "buf_rdata"
+      "ddr_base"
+      "ddr_base_lite"
       "req_m_axi_lite"
       "ack_m_axi_lite"
       "err_m_axi_lite"
-      "ddr_baseaddr"
       "req_m_axi"
       "ack_m_axi"
       "err_m_axi"
@@ -227,7 +228,7 @@ module axi_top(/*AUTOARG*/
   output                    s_axi_rvalid;
 
   output [ID_WIDTH-1:0]     m_axi_awid;
-  output [MEM_WIDTH-1:0]    m_axi_awaddr;
+  output [DWIDTH-1:0]       m_axi_awaddr;
   output [7:0]              m_axi_awlen;
   output [2:0]              m_axi_awsize;
   output [1:0]              m_axi_awburst;
@@ -244,7 +245,7 @@ module axi_top(/*AUTOARG*/
   output                    m_axi_wvalid;
   output                    m_axi_bready;
   output [ID_WIDTH-1:0]     m_axi_arid;
-  output [MEM_WIDTH-1:0]    m_axi_araddr;
+  output [DWIDTH-1:0]       m_axi_araddr;
   output [7:0]              m_axi_arlen;
   output [2:0]              m_axi_arsize;
   output [1:0]              m_axi_arburst;
@@ -313,7 +314,8 @@ module axi_top(/*AUTOARG*/
   /*o*/ wire                buf_isempty;
   /*o*/ wire                buf_isfull;
   /*o*/ wire [DWIDTH-1:0]   buf_rdata;
-        wire [DWIDTH-1:0]   ddr_baseaddr;
+        wire [DWIDTH-1:0]   ddr_base;
+        wire [DWIDTH-1:0]   ddr_base_lite;
   wire [DWIDTH-1:0]   probe0;
   wire [DWIDTH-1:0]   probe1;
 
@@ -323,8 +325,8 @@ module axi_top(/*AUTOARG*/
   assign req_m_axi_lite = port0[0];
   assign req_m_axi = port1[0];
   assign buf_re = port2[0];
-  assign ddr_baseaddr = port3;
-  // assign = port4;
+  assign ddr_base_lite = port3;
+  assign ddr_base = port4;
   // assign = port5;
   // assign = port6;
   // assign = port7;
@@ -338,22 +340,22 @@ module axi_top(/*AUTOARG*/
   // assign = port15;
 
   // Output ports
-  assign port31 = m_axi_lite_awvalid;
-  assign port30 = m_axi_lite_awready;
-  assign port29 = m_axi_lite_awaddr;
-  assign port28 = m_axi_lite_wvalid;
-  assign port27 = m_axi_lite_wready;
-  assign port26 = m_axi_lite_wdata;
-  assign port25 = m_axi_lite_bvalid;
-  assign port24 = m_axi_lite_bready;
-  assign port23 = m_axi_lite_arvalid;
-  assign port22 = m_axi_lite_arready;
+  assign port31 = s_axi_lite_awaddr;
+  assign port30 = s_axi_lite_wdata;
+  assign port29 = s_axi_lite_araddr;
+  assign port28 = s_axi_lite_rdata;
+  assign port27 = s_axi_awaddr;
+  assign port26 = s_axi_wdata;
+  assign port25 = s_axi_araddr;
+  assign port24 = s_axi_rdata;
+  assign port23 = m_axi_lite_awaddr;
+  assign port22 = m_axi_lite_wdata;
   assign port21 = m_axi_lite_araddr;
-  assign port20 = m_axi_lite_rvalid;
-  assign port19 = m_axi_lite_rready;
-  assign port18 = m_axi_lite_rdata;
-  assign port17 = err_m_axi_lite;
-  assign port16 = ack_m_axi_lite;
+  assign port20 = m_axi_lite_rdata;
+  assign port19 = m_axi_awaddr;
+  assign port18 = m_axi_wdata;
+  assign port17 = m_axi_araddr;
+  assign port16 = m_axi_rdata;
 
   /* s_axi_lite AUTO_TEMPLATE (
       .clk      (s_axi_lite_aclk),
@@ -437,6 +439,7 @@ module axi_top(/*AUTOARG*/
 
   /* m_axi_lite AUTO_TEMPLATE (
       .probe    (probe0),
+      .ddr_base (ddr_base_lite),
       .req      (req_m_axi_lite),
       .ack      (ack_m_axi_lite),
       .err      (err_m_axi_lite),
@@ -490,7 +493,7 @@ module axi_top(/*AUTOARG*/
 			     .rdata		(m_axi_lite_rdata), // Templated
 			     .rresp		(m_axi_lite_rresp), // Templated
 			     .rvalid		(m_axi_lite_rvalid), // Templated
-			     .ddr_baseaddr	(ddr_baseaddr[DWIDTH-1:0]));
+			     .ddr_base		(ddr_base_lite)); // Templated
 
   /* s_axi AUTO_TEMPLATE (
       .clk      (s_axi_aclk),
@@ -610,6 +613,7 @@ module axi_top(/*AUTOARG*/
 
   /* m_axi AUTO_TEMPLATE (
       .probe    (),
+      .ddr_base (ddr_base),
       .req      (req_m_axi),
       .ack      (ack_m_axi),
       .err      (err_m_axi),
@@ -708,7 +712,8 @@ module axi_top(/*AUTOARG*/
 		   .rresp		(m_axi_rresp),		 // Templated
 		   .rlast		(m_axi_rlast),		 // Templated
 		   .ruser		(m_axi_ruser),		 // Templated
-		   .rvalid		(m_axi_rvalid));		 // Templated
+		   .rvalid		(m_axi_rvalid),		 // Templated
+		   .ddr_base		(ddr_base));		 // Templated
 
   /* s_axi_stream AUTO_TEMPLATE (
       .clk    (s_axi_stream_aclk),

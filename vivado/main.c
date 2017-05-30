@@ -82,9 +82,7 @@ typedef int test;
 
 void init_reg(void)
 {
-  int i;
-
-  for (i = 0; i < REG_WIDTH/2; i++)
+  for (int i = 0; i < REG_WIDTH/2; i++)
     Xil_Out32(port(i), 0x0);
 }
 
@@ -143,10 +141,8 @@ void proc(int t)
 
 void print_reg(void)
 {
-  int i;
-
   printf("reg: {\n");
-  for (i = 0; i < 32; i++) {
+  for (int i = 0; i < 32; i++) {
     if (i % 4 == 0) printf("    ");
     if (i < 10)
       printf("port%1d:  %8lx, ", i, Xil_In32(port(i)));
@@ -213,20 +209,21 @@ void probe(void)
 
 test test_s_axi_lite(void)
 {
-  int i;
   u32 src[REG_WIDTH/2], dst[REG_WIDTH/2];
 
   init_reg();
 
-  for (i = 0; i < REG_WIDTH/2; i++)
-    src[i] = i * i;
+  // NOTE: values must be shifted enough
+  //       to avoid starting transactions of m_axi*
+  for (int i = 0; i < REG_WIDTH/2; i++)
+    src[i] = i * i << 16;
 
-  for (i = 0; i < REG_WIDTH/2; i++) {
+  for (int i = 0; i < REG_WIDTH/2; i++) {
     Xil_Out32(port(i), src[i]);
     dst[i] = Xil_In32(port(i));
   }
 
-  for (i = 0; i < REG_WIDTH/2; i++) {
+  for (int i = 0; i < REG_WIDTH/2; i++) {
     assert_eq(Xil_In32(port(i)), src[i]);
     assert_eq(dst[i], src[i]);
   }
@@ -237,33 +234,34 @@ test test_s_axi_lite(void)
   memcpy(_port, src, sizeof(u32)*REG_WIDTH/2);
   memcpy(dst, _port, sizeof(u32)*REG_WIDTH/2);
 
-  for (i = 0; i < REG_WIDTH/2; i++) {
+  for (int i = 0; i < REG_WIDTH/2; i++) {
     assert_eq(_port[i], src[i]);
     assert_eq(dst[i], src[i]);
   }
 
-  for (i = 0; i < 32; i++)
-    assert_eq(_port[i], Xil_In32(port(i)));
+  for (int i = 0; i < 32; i++)
+    if (_port[i] != Xil_In32(port(i)))
+      printf("%d %d: %lx %lx\n", i,  _port[i] != Xil_In32(port(i)), _port[i], Xil_In32(port(i)));
+    // assert_eq(_port[i], Xil_In32(port(i)));
 
   test_return();
 }
 
 test test_s_axi(void)
 {
-  int i;
   u32 src[MEM_WIDTH], dst[MEM_WIDTH];
 
   init_mem();
 
-  for (i = 0; i < MEM_WIDTH; i++)
+  for (int i = 0; i < MEM_WIDTH; i++)
     src[i] = i * i;
 
-  for (i = 0; i < MEM_WIDTH; i++) {
+  for (int i = 0; i < MEM_WIDTH; i++) {
     mem[i] = src[i];
     dst[i] = mem[i];
   }
 
-  for (i = 0; i < MEM_WIDTH; i++) {
+  for (int i = 0; i < MEM_WIDTH; i++) {
     assert_eq(mem[i], src[i]);
     assert_eq(dst[i], src[i]);
   }
@@ -274,7 +272,7 @@ test test_s_axi(void)
   memcpy(mem, src, sizeof(u32)*MEM_WIDTH);
   memcpy(dst, mem, sizeof(u32)*MEM_WIDTH);
 
-  for (i = 0; i < MEM_WIDTH; i++) {
+  for (int i = 0; i < MEM_WIDTH; i++) {
     assert_eq(mem[i], src[i]);
     assert_eq(dst[i], src[i]);
   }
@@ -284,7 +282,6 @@ test test_s_axi(void)
 
 test test_s_axi_stream(void)
 {
-  int i;
   int status;
   u32 *src = (u32 *)TX_BUFFER_BASE;
   u32 value;
@@ -297,14 +294,14 @@ test test_s_axi_stream(void)
 
   value = 0x12;
 
-  for (i = 0; i < BUF_WIDTH; i++) {
+  for (int i = 0; i < BUF_WIDTH; i++) {
       src[i] = 0;
       value  = value + 1;
   }
 
   init_reg();
 
-  for (i = 1; i <= BUF_WIDTH; i++) {
+  for (int i = 1; i <= BUF_WIDTH; i++) {
     status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, sizeof(u32)*i, XAXIDMA_DMA_TO_DEVICE);
     assert_not(status != XST_SUCCESS, "Transfer failed");
 
@@ -331,8 +328,40 @@ test test_s_axi_stream(void)
 
 test test_m_axi_lite(void)
 {
+  int acc = 0;
   // u32 src[100] = {0};
-  volatile u32 *src = (volatile u32 *)0x10000000;
+  volatile u32 *src = (volatile u32 *)0x11000000;
+
+  Xil_DCacheDisable();
+
+  init_reg();
+
+  for (int i = 0; i < 4; i++)
+    src[i] = 0;
+
+  for (int i = 0; i < 4; i++)
+    assert_eq(src[i], 0);
+
+  Xil_Out32(port(3), src);
+  Xil_Out32(port(0), 0x1);
+  Xil_Out32(port(0), 0x0);
+
+  for (int i = 0; i < 4; i++) {
+    acc += i;
+    assert_eq(src[i], acc);
+  }
+
+  Xil_DCacheEnable();
+
+  test_return();
+}
+
+test test_m_axi(void)
+{
+  // u32 src[100] = {0};
+  volatile u32 *src = (volatile u32 *)0x12000000;
+
+  Xil_DCacheDisable();
 
   init_reg();
 
@@ -340,18 +369,20 @@ test test_m_axi_lite(void)
   printf("%p\n", &src);
 
   for (int i = 0; i < 4; i++)
-    printf("%d: %lx\n", i, src[i]);
+    src[i] = 0;
 
-  print_reg();
-  Xil_Out32(port(3), src);
-  Xil_Out32(port(0), 0x1);
-  print_reg();
-  Xil_Out32(port(0), 0x0);
-  print_reg();
-  sleep(1);
-  Xil_DCacheFlushRange((UINTPTR)src, sizeof(u32)*100);
   for (int i = 0; i < 4; i++)
-    printf("%d: %lx\n", i, src[i]);
+    printf("%d: %8lx\n", i, src[i]);
+
+  Xil_Out32(port(4), src);
+  Xil_Out32(port(1), 0x1);
+  Xil_Out32(port(1), 0x0);
+  sleep(1);
+
+  for (int i = 0; i < 4; i++)
+    printf("%d: %8lx\n", i, src[i]);
+
+  Xil_DCacheEnable();
 
   test_return();
 }
@@ -368,6 +399,7 @@ int main(void)
   test_s_axi_stream();
 
   test_m_axi_lite();
+  test_m_axi();
 
   puts("###  end  ##################################################");
 
