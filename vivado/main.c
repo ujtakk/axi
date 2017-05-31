@@ -348,7 +348,6 @@ int main(void)
   test_m_axi();
 
   XTime_GetTime(&end);
-
   puts("###  end  ##################################################");
 
   printf("elapsed time: %10.6f [ms]\n",
