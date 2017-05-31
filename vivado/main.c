@@ -4,10 +4,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
+#include "sleep.h"
 #include "xil_io.h"
 #include "xil_printf.h"
+#include "xtime_l.h"
+#include "xaxidma.h"
 
 #define REG_WIDTH (1 << REGSIZE)
 #define MEM_WIDTH (1 << MEMSIZE)
@@ -22,7 +24,6 @@ static u32  mem_addr  = 0;
 static u32  mem_wdata = 0;
 static u32  mem_rdata = 0;
 
-#include "xaxidma.h"
 static XAxiDma dma;
 static XAxiDma_Config *dma_cfg;
 const int dma_id = XPAR_AXIDMA_0_DEVICE_ID;
@@ -44,24 +45,14 @@ const int dma_id = XPAR_AXIDMA_0_DEVICE_ID;
 #define RX_BUFFER_BASE    (MEM_BASE_ADDR + 0x00300000)
 #define RX_BUFFER_HIGH    (MEM_BASE_ADDR + 0x004FFFFF)
 
-// latency analysis
-#include "xtime_l.h"
-static XTime begin, end;
-#define BEGIN XTime_GetTime(&begin);
-#define END   do { \
-                XTime_GetTime(&end); \
-                printf("%d %10.6f\n", \
-                       Index/4, (double)(end-begin) / COUNTS_PER_SECOND * 1000000); \
-              } while (0);
-
-#define assert_eq(a, b) do {                                  \
-  if ((a) != (b)) {                                           \
-    printf("Assertion failed: %s == %s, file %s, line %d\n",  \
-            #a, #b, __FILE__, __LINE__);                      \
-    printf("\t%s == %lx, %s == %lx\n", #a, (a), #b, (b));     \
-    printf("%s: FAIL\n", __func__);                           \
-    return EXIT_FAILURE;                                      \
-  }                                                           \
+#define assert_eq(a, b) do {                                        \
+  if ((a) != (b)) {                                                 \
+    printf("Assertion failed: %s == %s, file %s, line %d\n",        \
+            #a, #b, __FILE__, __LINE__);                            \
+    printf("\t%s == %lx, %s == %lx\n", #a, (u32)(a), #b, (u32)(b)); \
+    printf("%s: FAIL\n", __func__);                                 \
+    return EXIT_FAILURE;                                            \
+  }                                                                 \
 } while (0)
 
 #define assert_not(cond, fail_msg) do {                 \
@@ -80,15 +71,19 @@ static XTime begin, end;
 
 typedef int test;
 
-void init_reg(void)
+int init_reg(void)
 {
   for (int i = 0; i < REG_WIDTH/2; i++)
     Xil_Out32(port(i), 0x0);
+
+  return EXIT_SUCCESS;
 }
 
-void init_mem(void)
+int init_mem(void)
 {
   memset(mem, 0, sizeof(u32)*MEM_WIDTH);
+
+  return EXIT_SUCCESS;
 }
 
 int init_buf(void)
@@ -107,36 +102,8 @@ int init_buf(void)
   // Disable interrupts, we use polling mode
   XAxiDma_IntrDisable(&dma, XAXIDMA_IRQ_ALL_MASK, XAXIDMA_DEVICE_TO_DMA);
   XAxiDma_IntrDisable(&dma, XAXIDMA_IRQ_ALL_MASK, XAXIDMA_DMA_TO_DEVICE);
-}
 
-void proc(int t)
-{
-  switch (t) {
-    case 0:
-      mem_we = 0;
-      mem_addr = 2;
-      mem_wdata = 5;
-      break;
-
-    case 1:
-      mem_we = 1;
-      break;
-
-    case 2:
-      mem_we = 0;
-      break;
-
-    case 3:
-      Xil_Out32(port(2), 0x1);
-      break;
-
-    case 4:
-      Xil_Out32(port(2), 0x0);
-      break;
-
-    default:
-      break;
-  }
+  return EXIT_SUCCESS;
 }
 
 void print_reg(void)
@@ -181,30 +148,6 @@ void print_buf(void)
   printf("    buf_wptr:    %8lx,\n", _port[17]);
   printf("    buf_rptr:    %8lx,\n", _port[16]);
   printf("}\n");
-}
-
-void probe(void)
-{
-  const int TIME = 10;
-  static int t = 0;
-  int n = 0;
-
-  // while (t < TIME) {
-    proc(t);
-
-    printf("time: %5d\n", t);
-    print_reg();
-    print_mem();
-    print_buf();
-
-    n = getchar();
-    // if (t != 0 && n != 13)
-    // if (t == TIME - 1)
-    //   break;
-    puts("############################################################");
-
-    t = t + 1;
-  // }
 }
 
 test test_s_axi_lite(void)
@@ -285,11 +228,13 @@ test test_s_axi_stream(void)
   int status;
   u32 *src = (u32 *)TX_BUFFER_BASE;
   u32 value;
+  XTime begin, end;
 
   init_reg();
   init_buf();
 
-  // Flush the SrcBuffer before the DMA transfer, in case the Data Cache is enabled
+  // Flush the SrcBuffer before the DMA transfer,
+  // in case the Data Cache is enabled
   Xil_DCacheFlushRange((UINTPTR)src, sizeof(u32)*BUF_WIDTH);
 
   value = 0x12;
@@ -302,12 +247,14 @@ test test_s_axi_stream(void)
   init_reg();
 
   for (int i = 1; i <= BUF_WIDTH; i++) {
-    status = XAxiDma_SimpleTransfer(&dma, (UINTPTR)src, sizeof(u32)*i, XAXIDMA_DMA_TO_DEVICE);
+    status = XAxiDma_SimpleTransfer(&dma,
+              (UINTPTR)src, sizeof(u32)*i, XAXIDMA_DMA_TO_DEVICE);
     assert_not(status != XST_SUCCESS, "Transfer failed");
 
     XTime_GetTime(&begin);
     while (XAxiDma_Busy(&dma, XAXIDMA_DMA_TO_DEVICE)) {
-      XTime_GetTime(&end); assert_not((double)(end-begin) / COUNTS_PER_SECOND > 1.0,
+      XTime_GetTime(&end);
+      assert_not((double)(end-begin) / COUNTS_PER_SECOND > 1.0,
                   "More than 1sec was elapsed on dma");
       /* Blocking */
     }
@@ -329,20 +276,20 @@ test test_s_axi_stream(void)
 test test_m_axi_lite(void)
 {
   int acc = 0;
-  // u32 src[100] = {0};
-  volatile u32 *src = (volatile u32 *)0x11000000;
+  u32 src[4] = {0};
+  // volatile u32 *src = (volatile u32 *)0x11000000;
 
   Xil_DCacheDisable();
 
   init_reg();
 
-  for (int i = 0; i < 4; i++)
-    src[i] = 0;
+  // for (int i = 0; i < 4; i++)
+  //   src[i] = 0;
 
   for (int i = 0; i < 4; i++)
     assert_eq(src[i], 0);
 
-  Xil_Out32(port(3), src);
+  Xil_Out32(port(3), (UINTPTR)src);
   Xil_Out32(port(0), 0x1);
   Xil_Out32(port(0), 0x0);
 
@@ -351,9 +298,6 @@ test test_m_axi_lite(void)
     assert_eq(src[i], acc);
   }
 
-  for (int i = -16; i < 16; i++)
-    printf("%d: %8lx\n", i, src[i]);
-
   Xil_DCacheEnable();
 
   test_return();
@@ -361,30 +305,25 @@ test test_m_axi_lite(void)
 
 test test_m_axi(void)
 {
-  // u32 src[100] = {0};
-  volatile u32 *src = (volatile u32 *)0x11ffff00;
+  u32 src[256] = {0};
+  // volatile u32 *src = (volatile u32 *)0x12000000;
 
   Xil_DCacheDisable();
 
   init_reg();
 
-  printf("%p\n", src);
-  printf("%p\n", &src);
+  // for (int i = 0; i < 256; i++)
+  //   src[i] = 0;
 
-  for (int i = 0; i < 4; i++)
-    src[i] = 0;
+  for (int i = 0; i < 256; i++)
+    assert_eq(src[i], 0);
 
-  // for (int i = 0; i < 4; i++)
-  //   printf("%d: %8lx\n", i, src[i]);
-
-  Xil_Out32(port(4), src);
-  print_reg();
+  Xil_Out32(port(4), (UINTPTR)src);
   Xil_Out32(port(1), 0x1);
   Xil_Out32(port(1), 0x0);
-  sleep(1);
 
-  for (int i = -16; i < 16; i++)
-    printf("%d: %8lx\n", i, src[i]);
+  for (int i = 0; i < 256; i++)
+    assert_eq(src[i], i);
 
   Xil_DCacheEnable();
 
@@ -393,10 +332,13 @@ test test_m_axi(void)
 
 int main(void)
 {
+  XTime begin, end;
+
   setbuf(stdout, NULL);
   printf("\033[2J");
 
   puts("### start ##################################################");
+  XTime_GetTime(&begin);
 
   test_s_axi_lite();
   test_s_axi();
@@ -405,7 +347,12 @@ int main(void)
   test_m_axi_lite();
   test_m_axi();
 
+  XTime_GetTime(&end);
+
   puts("###  end  ##################################################");
+
+  printf("elapsed time: %10.6f [ms]\n",
+                  (double)(end-begin) / COUNTS_PER_SECOND * 1000);
 
   return 0;
 }

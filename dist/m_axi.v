@@ -15,9 +15,9 @@ module m_axi(/*AUTOARG*/
 
   parameter BURST_LEN     = 256;
   parameter TXN_NUM       = clogb2(BURST_LEN-1);
-  parameter TOTAL_LEN     = 10;
-  parameter NO_BURSTS_REQ = TOTAL_LEN - clogb2(BURST_LEN-1);
-  // parameter NO_BURSTS_REQ = TOTAL_LEN - clogb2(BURST_LEN*DWIDTH/8-1);
+  // Total Data Amount (in byte: 2^12 byte -> 2^12 / (BURST_LEN*DWIDTH/8-1) req)
+  parameter TOTAL_LEN     = 12;
+  parameter NO_BURSTS_REQ = TOTAL_LEN - clogb2(BURST_LEN*DWIDTH/8-1);
 
   localparam  S_IDLE  = 'd0,
               S_WRITE = 'd1,
@@ -123,6 +123,8 @@ module m_axi(/*AUTOARG*/
   reg [ARUSER_WIDTH-1:0]  r_aruser;
   reg                     r_arvalid;
   reg                     r_rready;
+  reg [NO_BURSTS_REQ:0]   r_write_burst_cnt;
+  reg [NO_BURSTS_REQ:0]   r_read_burst_cnt;
   reg [TXN_NUM:0]         r_write_idx;
   reg [TXN_NUM:0]         r_read_idx;
   reg                     r_write_single_burst;
@@ -264,12 +266,11 @@ module m_axi(/*AUTOARG*/
 
   always @(posedge clk)
     if (!xrst)
-      r_wdata <= 1;
+      r_wdata <= 0;
     else if (req_pulse)
-      r_wdata <= 1;
+      r_wdata <= 0;
     else if (wnext)
-      // r_wdata <= r_wdata + 1;
-      r_wdata <= 1;
+      r_wdata <= r_wdata + 1;
 
   always @(posedge clk)
     if (!xrst)
