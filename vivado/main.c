@@ -330,6 +330,13 @@ test test_m_axi(void)
   test_return();
 }
 
+test test_m_axi_stream(void)
+{
+  /* TODO: implement */
+
+  test_return();
+}
+
 int main(void)
 {
   XTime begin, end;
@@ -346,6 +353,7 @@ int main(void)
 
   test_m_axi_lite();
   test_m_axi();
+  test_m_axi_stream();
 
   XTime_GetTime(&end);
   puts("###  end  ##################################################");
